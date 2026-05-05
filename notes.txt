@@ -1,0 +1,41 @@
+the goal is to make a clone of desmos
+-ocaml for front and back end
+
+first we need a language. i wanna look into ocamllex or something that makes this a lot easier
+
+desmos language features
+-numbers
+-special constants/conversion to greek letters
+--pi, e
+-operations
+--div, mult, minus, add, eq
+--exp
+--lt, gt, lte, gte
+--sqrt
+--abs value
+-lists
+-user defined functions
+-special functions
+--trig, inverse trig, stats, list ops, etc 
+-conditionals
+-variables
+
+
+
+
+term
+    | ID 
+    these are the variables
+    [_A-Za-z][_A-Za-z0-9]*
+
+    | Variable of ID * term
+    | Number
+    [+-]?[0-9]*\.?[0-9]+
+    | List of term
+    desc: [e11, el2, ...]
+    
+    | LEFT_SQUARE_BRACKET
+    | RIGHT_SQUARE_BRACKET
+    | COMMA
+    | LEFT_PAREN
+    | RIGHT_PAREN
