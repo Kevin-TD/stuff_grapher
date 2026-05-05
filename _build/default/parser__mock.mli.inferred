@@ -1,18 +1,6 @@
-type token =
-    SUB
-  | RPAREN
-  | MUL
-  | LPAREN
-  | LET
-  | INT of int
-  | IN
-  | IDENT of string
-  | EQUAL
-  | EOF
-  | DIV
-  | ADD
+type token = NUMBER of float | NEWLINE | IDENT of string | EQUAL | EOF
 val menhir_begin_marker : int
-val xv_main : Ast.expr
-val xv_let_expr : Ast.expr
-val xv_expr : Ast.expr
+val xv_stmts : Ast.prog
+val xv_stmt : Ast.stmt
+val xv_main : Ast.prog
 val menhir_end_marker : int

@@ -1,44 +1,18 @@
-
 {
-  open Parser
-  exception Error of char
+open Parser
 }
 
-let letter = ['A'-'Z'] | ['a'-'z']
-let digit = ['0'-'9']
-let non_digit = '_' | letter
-let ident = non_digit (digit | non_digit)*
-
-let line_comment = "//" [^ '\n']*
-
 rule token = parse
-   |  [' ' '\t'] | line_comment
-       { token lexbuf }
-   | ['\n']
-       { Lexing.new_line lexbuf; token lexbuf }
-   | ident as str
-       { match str with
-         | "let" -> LET
-         | "in" -> IN
-         | s -> IDENT(s)
-       }
-   | ['=']
-       { EQUAL }
-   | ['+']
-       { ADD }
-   | ['-']
-       { SUB }
-   | ['*']
-       { MUL }
-   | ['/']
-       { DIV }
-   | digit+ as lxm
-       { INT(int_of_string lxm) }
-   | ['(']
-       { LPAREN }
-   | [')']
-       { RPAREN }
-   | eof
-       { EOF }
-   | _ as c
-       { raise (Error c) }
+  | [' ' '\t']        { token lexbuf }
+  | '\n'              { NEWLINE }
+  | '='               { EQUAL }
+  | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as n 
+    { NUMBER (float_of_string n)}
+
+  (* | ['0'-'9']+ '.' ['0'-'9']+ as f
+                      { NUMBER (float_of_string f) }
+  | ['0'-'9']+ as i   { NUMBER (float_of_string i) } *)
+  | ['a'-'z' 'A'-'Z']+ as id
+                      { IDENT id }
+  | eof               { EOF }
+  | _                 { failwith "unexpected char" }

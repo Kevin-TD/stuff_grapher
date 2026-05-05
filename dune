@@ -3,5 +3,5 @@
 (menhir (modules parser))
 
 (executable
-  (name test)
+  (name main)
   (libraries core core_unix.command_unix))
