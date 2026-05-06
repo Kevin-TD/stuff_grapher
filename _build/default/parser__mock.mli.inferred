@@ -25,10 +25,11 @@ type token =
 val menhir_begin_marker : int
 val xv_stmts : Ast.prog
 val xv_stmt : Ast.stmt
-val xv_separated_nonempty_list_COMMA_stmt_ : Ast.stmt list
-val xv_separated_list_COMMA_stmt_ : Ast.stmt list
-val xv_rev_list_elems : Ast.stmt list
+val xv_separated_nonempty_list_COMMA_expr_ : Ast.expr list
+val xv_separated_list_COMMA_expr_ : Ast.expr list
+val xv_rev_expr_list_elems : Ast.expr list
 val xv_main : Ast.prog
-val xv_loption_separated_nonempty_list_COMMA_stmt__ : Ast.stmt list
-val xv_list_elems : Ast.stmt list
+val xv_loption_separated_nonempty_list_COMMA_expr__ : Ast.expr list
+val xv_expr_list_elems : Ast.expr list
+val xv_expr : Ast.expr
 val menhir_end_marker : int

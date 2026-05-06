@@ -40,30 +40,33 @@ stmts:
   | s = stmt EOF { [s] }
 
 stmt:
+  | id = IDENT EQUAL e = expr
+    { Assign (id, e) }
+  | e1 = expr LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN EQUAL e3 = expr 
+    { FunctionDef(e1, e2, e3) }
+
+expr:
   | n = NUMBER { Number n }
   | id = IDENT { Ident id }
-  | id = IDENT EQUAL x = stmt
-      { Assign (id, x) }
-  | e1 = stmt PLUS e2 = stmt { Plus(e1, e2) }
-  | e1 = stmt MINUS e2 = stmt { Minus(e1, e2) }
-  | e1 = stmt MULT e2 = stmt { Mult(e1, e2) }
-  | e1 = stmt DIV e2 = stmt { Div(e1, e2) }
-  | e1 = stmt EXP e2 = stmt { Exp(e1, e2) } 
-  | MINUS e = stmt %prec UMINUS { Neg e }
-  | LEFT_PAREN e = stmt RIGHT_PAREN { e }
-  | e1 = stmt COMPARE e2 = stmt { Compare(e1, e2) }
-  | e1 = stmt LT e2 = stmt { Lt(e1, e2) }
-  | e1 = stmt LTE e2 = stmt { Lte(e1, e2) }
-  | e1 = stmt GT e2 = stmt { Gt(e1, e2) }
-  | e1 = stmt GTE e2 = stmt { Gte(e1, e2) }
-  | IF e1 = stmt THEN e2 = stmt ELSE e3 = stmt { If_else(e1, e2, e3) }
-  | LEFT_SQR_BRACKET elems = list_elems RIGHT_SQR_BRACKET { StmtList (List.rev elems) }
-  | e1 = stmt LEFT_PAREN e2 = list_elems RIGHT_PAREN EQUAL e3 = stmt { FunctionDef(e1, List.rev e2, e3) }
-  | e1 = stmt LEFT_PAREN e2 = list_elems RIGHT_PAREN { FunctionCall(e1, List.rev e2) }
+  | e1 = expr PLUS e2 = expr { Plus(e1, e2) }
+  | e1 = expr MINUS e2 = expr { Minus(e1, e2) }
+  | e1 = expr MULT e2 = expr { Mult(e1, e2) }
+  | e1 = expr DIV e2 = expr { Div(e1, e2) }
+  | e1 = expr EXP e2 = expr { Exp(e1, e2) } 
+  | MINUS e = expr %prec UMINUS { Neg e }
+  | LEFT_PAREN e = expr RIGHT_PAREN { e }
+  | e1 = expr COMPARE e2 = expr { Compare(e1, e2) }
+  | e1 = expr LT e2 = expr { Lt(e1, e2) }
+  | e1 = expr LTE e2 = expr { Lte(e1, e2) }
+  | e1 = expr GT e2 = expr { Gt(e1, e2) }
+  | e1 = expr GTE e2 = expr { Gte(e1, e2) }
+  | IF e1 = expr THEN e2 = expr ELSE e3 = expr { If_else(e1, e2, e3) }
+  | LEFT_SQR_BRACKET elems = expr_list_elems RIGHT_SQR_BRACKET { ExprList elems }
+  | e1 = expr LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN { FunctionCall(e1, e2) }
 
-list_elems:
-  elems = rev_list_elems { List.rev elems }
+expr_list_elems:
+  elems = rev_expr_list_elems { List.rev elems }
 
-rev_list_elems:
+rev_expr_list_elems:
   | /* empty */ { [] }
-  | xs = separated_list(COMMA, stmt) { xs }
+  | xs = separated_list(COMMA, expr) { xs }
