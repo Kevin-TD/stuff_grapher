@@ -1,6 +1,34 @@
-type token = NUMBER of float | NEWLINE | IDENT of string | EQUAL | EOF
+type token =
+    THEN
+  | RIGHT_SQR_BRACKET
+  | RIGHT_PAREN
+  | PLUS
+  | NUMBER of float
+  | NEWLINE
+  | MULT
+  | MINUS
+  | LTE
+  | LT
+  | LEFT_SQR_BRACKET
+  | LEFT_PAREN
+  | IF
+  | IDENT of string
+  | GTE
+  | GT
+  | EXP
+  | EQUAL
+  | EOF
+  | ELSE
+  | DIV
+  | COMPARE
+  | COMMA
 val menhir_begin_marker : int
 val xv_stmts : Ast.prog
 val xv_stmt : Ast.stmt
+val xv_separated_nonempty_list_COMMA_stmt_ : Ast.stmt list
+val xv_separated_list_COMMA_stmt_ : Ast.stmt list
+val xv_rev_list_elems : Ast.stmt list
 val xv_main : Ast.prog
+val xv_loption_separated_nonempty_list_COMMA_stmt__ : Ast.stmt list
+val xv_list_elems : Ast.stmt list
 val menhir_end_marker : int
