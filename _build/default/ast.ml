@@ -3,10 +3,10 @@ type expr =
   | Ident of string
   | Plus of expr * expr
   | Minus of expr * expr
-  | Neg of expr
   | Mult of expr * expr
   | Div of expr * expr
   | Exp of expr * expr
+  | Neg of expr
   | Compare of expr * expr
   | Gt of expr * expr
   | Gte of expr * expr
@@ -18,6 +18,7 @@ type expr =
   (* non-typeable *)
   | True
   | False 
+  | Unresolved of expr
 
 and stmt =
   | FunctionDef of expr * expr list * expr (* name, params, body *)
@@ -48,9 +49,9 @@ let rec string_of_expr = function
     "FunctionCall(" ^ string_of_expr e1 ^ ", " ^ string_of_expr (ExprList e2) ^ ")"
   | True -> "True"
   | False -> "False"
+  | Unresolved x -> "Unresolved(" ^ string_of_expr x ^ ")"
 
 let rec string_of_stmt = function
-    (* | Expr e -> "Expr(" ^ string_of_expr e ^ ")" *)
     | Assign (x, s) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")"
     | FunctionDef (e1, e2, e3) -> 
     "FunctionDef(" ^ string_of_expr e1 ^ ", " ^ string_of_expr (ExprList e2) ^ ", " ^ string_of_expr e3 ^ ")"
