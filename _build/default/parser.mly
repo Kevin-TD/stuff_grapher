@@ -3,7 +3,8 @@ open Ast
 %}
 
 %token <string> IDENT
-%token <float> NUMBER
+%token <float> REAL
+%token <int> INTEGER
 %token EQUAL
 %token NEWLINE
 %token EOF
@@ -47,7 +48,8 @@ stmt:
     { FunctionDef(name, e2, e3) }
 
 expr:
-  | n = NUMBER { Number n }
+  | i = INTEGER { Integer i }
+  | r = REAL { Real r }
   | id = IDENT { Ident id }
   | e1 = expr PLUS e2 = expr { Plus(e1, e2) }
   | e1 = expr MINUS e2 = expr { Minus(e1, e2) }

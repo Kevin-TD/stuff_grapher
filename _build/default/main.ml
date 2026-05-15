@@ -3,6 +3,10 @@ open Ast
 
 let filename = "./test/" ^ Sys.argv.(1) ^ ".d"
 
+(* im calling this "desmos clone" (dcl) *)
+(* file type .d or whatever it doesnt really matter *)
+(* its lowkey untyped *)
+
 (* statements can be in any order! simply must define everything *)
 (* TODO: disallow variable re-definitions? *)
 (* TODO: error if a symbol is still unresolved after the resolver runs? *)
@@ -19,6 +23,9 @@ global env and whichever name appears first (which will be the function env) is 
 (* TODO: code cleanup LOL! *)
 (* TODO: better errors *)
 
+(* dcl lists will be 1-indexed *)
+
+
 type environment = (string * expr) list
 
 let lookup (var_name : string) (env : environment) = 
@@ -29,6 +36,14 @@ let lookup (var_name : string) (env : environment) =
 let bool_wrap (b : bool) = match b with
   | true -> True
   | false -> False
+
+(* integer exponentiation *)
+let rec pow a = function
+  | 0 -> 1
+  | 1 -> a
+  | n -> 
+    let b = pow a (n / 2) in
+    b * b * (if n mod 2 = 0 then 1 else a)
 
 let rec parse_prog (p : prog) (env : environment) = 
   match List.nth_opt p 0 with
@@ -42,7 +57,7 @@ let rec parse_prog (p : prog) (env : environment) =
   | None -> env
 
 and parse_expr (ex : expr) (env : environment) = match ex with
-  | Number _ as n -> n
+  | Integer _ | Real _ as n -> n
   | True | False as b -> b
   | Ident x as id -> (match lookup x env with
     | Some e -> e
@@ -50,48 +65,76 @@ and parse_expr (ex : expr) (env : environment) = match ex with
   )
   | Plus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> Number (n1 +. n2)
+    | Integer i1, Integer i2 -> Integer (i1 + i2)
+    | Integer i, Real r 
+    | Real r, Integer i -> Real (r +. float_of_int i)
+    | Real r1, Real r2 -> Real (r1 +. r2)
     | _ -> Unresolved e
   )
   | Minus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> Number (n1 -. n2)
+    | Integer i1, Integer i2 -> Integer (i1 - i2)
+    | Integer i, Real r -> Real (float_of_int i -. r)
+    | Real r, Integer i -> Real (r -. float_of_int i)
+    | Real r1, Real r2 -> Real (r1 -. r2)
     | _ -> Unresolved e
   )
   | Mult (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> Number (n1 *. n2)
+    | Integer i1, Integer i2 -> Integer (i1 * i2)
+    | Integer i, Real r 
+    | Real r, Integer i -> Real (r *. float_of_int i)
+    | Real r1, Real r2 -> Real (r1 *. r2)
     | _ -> Unresolved e
   )
   | Div (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> Number (n1 /. n2)
+    | Integer i1, Integer i2 -> Integer (i1 / i2)
+    | Integer i, Real r -> Real (float_of_int i /. r)
+    | Real r, Integer i -> Real (r /. float_of_int i)
+    | Real r1, Real r2 -> Real (r1 /. r2)
     | _ -> Unresolved e
   )
   | Exp (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> Number (n1 ** n2)
+    | Integer i1, Integer i2 -> Integer (pow i1 i2)
+    | Integer i, Real r -> Real ((float_of_int i) ** r)
+    | Real r, Integer i -> Real (r ** (float_of_int i))
+    | Real r1, Real r2 -> Real (r1 +. r2)
     | _ -> Unresolved e
   )
   | Neg e -> (
     match parse_expr e env with
-    | Number n -> Number (-1. *. n)
+    | Integer i -> Integer (-1 * i)
+    | Real r -> Real (-1. *. r)
     | _ -> Unresolved e
   )
   | Gt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> bool_wrap (n1 > n2)
+    | Integer i1, Integer i2 -> bool_wrap (i1 > i2)
+    | Integer i, Real r -> bool_wrap (float_of_int i > r)
+    | Real r, Integer i -> bool_wrap (r > float_of_int i)
+    | Real r1, Real r2 -> bool_wrap (r1 > r2)
     | _ -> Unresolved e
   )
   | Gte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> bool_wrap (n1 >= n2)
+    | Integer i1, Integer i2 -> bool_wrap (i1 >= i2)
+    | Integer i, Real r -> bool_wrap (float_of_int i >= r)
+    | Real r, Integer i -> bool_wrap (r >= float_of_int i)
+    | Real r1, Real r2 -> bool_wrap (r1 >= r2)
     | _ -> Unresolved e
   )
   | Lt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> bool_wrap (n1 < n2)
+    | Integer i1, Integer i2 -> bool_wrap (i1 < i2)
+    | Integer i, Real r -> bool_wrap (float_of_int i < r)
+    | Real r, Integer i -> bool_wrap (r < float_of_int i)
+    | Real r1, Real r2 -> bool_wrap (r1 < r2)
     | _ -> Unresolved e
   )
   | Lte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Number n1, Number n2 -> bool_wrap (n1 <= n2)
+    | Integer i1, Integer i2 -> bool_wrap (i1 <= i2)
+    | Integer i, Real r -> bool_wrap (float_of_int i <= r)
+    | Real r, Integer i -> bool_wrap (r <= float_of_int i)
+    | Real r1, Real r2 -> bool_wrap (r1 <= r2)
     | _ -> Unresolved e
   )
   | Compare (t1, t2) as t -> (match parse_expr t1 env, parse_expr t2 env with
@@ -100,7 +143,7 @@ and parse_expr (ex : expr) (env : environment) = match ex with
   )
   | NotEqual (t1, t2) as t -> (match parse_expr t1 env, parse_expr t2 env with
     | Unresolved _, _ | _, Unresolved _ -> Unresolved t
-    | e1, e2 -> bool_wrap (not (e1 = e2))
+    | e1, e2 -> bool_wrap (e1 <> e2)
   )
   | FunctionCall (name, args) as e -> (match lookup name env with
     | Some (Fn (params, body)) -> (
@@ -134,7 +177,7 @@ and parse_expr (ex : expr) (env : environment) = match ex with
 
 let rec find_undefs (e : expr) (env : environment) = match e with
   | Unresolved u -> find_undefs u env
-  | Number _ | True | False -> []
+  | Integer _ | Real _ | True | False -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)

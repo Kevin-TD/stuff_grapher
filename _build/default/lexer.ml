@@ -5,17 +5,17 @@ open Parser
 # 6 "lexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
-   "\000\000\229\255\230\255\075\000\150\000\162\000\192\000\011\001\
+   "\000\000\228\255\229\255\075\000\150\000\162\000\192\000\011\001\
     \086\001\002\000\003\000\031\000\242\255\243\255\244\255\245\255\
     \246\255\247\255\248\255\249\255\174\000\163\001\034\000\253\255\
     \027\000\255\255\241\255\173\001\183\001\240\255\238\255\236\255\
     \193\001\012\002\087\002\162\002\237\002\056\003\131\003";
   Lexing.lex_backtrk =
-   "\255\255\255\255\255\255\024\000\026\000\023\000\024\000\024\000\
-    \024\000\018\000\016\000\026\000\255\255\255\255\255\255\255\255\
+   "\023\000\255\255\255\255\025\000\027\000\023\000\025\000\025\000\
+    \025\000\018\000\016\000\027\000\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\005\000\004\000\003\000\255\255\
-    \001\000\255\255\255\255\255\255\023\000\255\255\255\255\255\255\
-    \020\000\024\000\024\000\021\000\024\000\024\000\022\000";
+    \001\000\255\255\255\255\255\255\024\000\255\255\255\255\255\255\
+    \020\000\025\000\025\000\021\000\025\000\025\000\022\000";
   Lexing.lex_default =
    "\001\000\000\000\000\000\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\000\000\000\000\000\000\000\000\
@@ -450,32 +450,42 @@ and __ocaml_lex_token_rec lexbuf __ocaml_lex_state =
   | 23 ->
 let
 # 30 "lexer.mll"
-                                             n
+                             i
 # 455 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
 # 31 "lexer.mll"
-    ( NUMBER (float_of_string n))
+    ( INTEGER (int_of_string i) )
 # 459 "lexer.ml"
 
   | 24 ->
 let
-# 33 "lexer.mll"
-                                                    id
+# 32 "lexer.mll"
+                                             r
 # 465 "lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 34 "lexer.mll"
-   ( IDENT id )
+# 33 "lexer.mll"
+    ( REAL (float_of_string r))
 # 469 "lexer.ml"
 
   | 25 ->
+let
+# 34 "lexer.mll"
+                                                    id
+# 475 "lexer.ml"
+= Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
 # 35 "lexer.mll"
-                      ( EOF )
-# 474 "lexer.ml"
+   ( IDENT id )
+# 479 "lexer.ml"
 
   | 26 ->
 # 36 "lexer.mll"
+                      ( EOF )
+# 484 "lexer.ml"
+
+  | 27 ->
+# 37 "lexer.mll"
                       ( failwith "unexpected char" )
-# 479 "lexer.ml"
+# 489 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_token_rec lexbuf __ocaml_lex_state

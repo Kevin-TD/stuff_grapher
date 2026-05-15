@@ -27,9 +27,10 @@ rule token = parse
   | "then" { THEN }
   | "else" { ELSE }
 
-  | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as n 
-    { NUMBER (float_of_string n)}
-
+  | ['+' '-']? ['0'-'9']* as i
+    { INTEGER (int_of_string i) }
+  | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as r
+    { REAL (float_of_string r)}
   | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9']* as id
    { IDENT id }
   | eof               { EOF }

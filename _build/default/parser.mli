@@ -5,8 +5,8 @@ type token =
   | THEN
   | RIGHT_SQR_BRACKET
   | RIGHT_PAREN
+  | REAL of (float)
   | PLUS
-  | NUMBER of (float)
   | NOT_EQUAL
   | NEWLINE
   | MULT
@@ -15,6 +15,7 @@ type token =
   | LT
   | LEFT_SQR_BRACKET
   | LEFT_PAREN
+  | INTEGER of (int)
   | IF
   | IDENT of (string)
   | GTE

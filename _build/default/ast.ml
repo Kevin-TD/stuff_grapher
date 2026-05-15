@@ -1,5 +1,6 @@
 type expr =
-  | Number of float
+  | Integer of int
+  | Real of float
   | Ident of string
   | Plus of expr * expr
   | Minus of expr * expr
@@ -30,7 +31,8 @@ and stmt =
 type prog = stmt list
 
 let rec string_of_expr = function
-  | Number f -> "Number(" ^ string_of_float f ^ ")"
+  | Integer i -> "Integer(" ^ string_of_int i ^ ")"
+  | Real r -> "Real(" ^ string_of_float r ^ ")"
   | Ident x -> "Ident(" ^ x ^ ")"
   | Plus (e1, e2) -> "Plus(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | Minus (e1, e2) -> "Minus(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
