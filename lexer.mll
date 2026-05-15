@@ -26,7 +26,8 @@ rule token = parse
   | "if" { IF }
   | "then" { THEN }
   | "else" { ELSE }
-
+  | "fun" { FUN }
+  | "->" { ARROW }
   | ['+' '-']? ['0'-'9']* as i
     { INTEGER (int_of_string i) }
   | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as r

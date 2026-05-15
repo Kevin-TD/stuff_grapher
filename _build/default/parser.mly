@@ -22,6 +22,7 @@ open Ast
 %token COMPARE
 %token LT LTE GT GTE
 %token NOT_EQUAL
+%token FUN ARROW
 
 %left PLUS MINUS
 %left MULT DIV
@@ -67,6 +68,13 @@ expr:
   | IF e1 = expr THEN e2 = expr ELSE e3 = expr { If_else(e1, e2, e3) }
   | LEFT_SQR_BRACKET elems = expr_list_elems RIGHT_SQR_BRACKET { ExprList elems }
   | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN { FunctionCall(name, e2) }
+  | FUN param = expr ARROW body = expr { Fn ([param], body) }
+  | FUN LEFT_PAREN params = expr_list_elems RIGHT_PAREN ARROW body = expr
+    { Fn (params, body) }
+
+  // r1 = x(fun x -> x + 1, 3)
+// r2 = x1(fun (x, y) -> x + y)
+
   | e = expr LEFT_SQR_BRACKET idx = expr RIGHT_SQR_BRACKET { IndexOf(e, idx)}
 expr_list_elems:
   elems = rev_expr_list_elems { List.rev elems }

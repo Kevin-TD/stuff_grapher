@@ -8,7 +8,7 @@ type test_example = {
     expected_env: environment
 }
 
-let debug_mode = true
+let debug_mode = false
 
 let test_dirname = "test/"
 

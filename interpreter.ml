@@ -6,7 +6,7 @@ open Ast
 (* its lowkey untyped *)
 
 (* statements can be in any order! simply must define everything *)
-(* TODO: disallow variable re-definitions? *)
+(* TODO: disallow variable re-definitions?  <--- work on this tomorrow or whatever *)
 (* TODO: error if a symbol is still unresolved after the resolver runs? *)
 
 (* lazy function evaluation: eval functions only when called. dont worry about them at definition *)
@@ -58,9 +58,11 @@ let rec parse_prog (p : prog) (env : environment) =
   )
   | None -> env
 
-and parse_expr (ex : expr) (env : environment) = match ex with
+and parse_expr (ex : expr) (env : environment) = 
+  match ex with
   | Integer _ | Real _ as n -> n
   | True | False as b -> b
+  | Fn _ as f -> f
   | Ident x as id -> (match lookup x env with
     | Some e -> e
     | None -> Unresolved id
@@ -165,7 +167,7 @@ and parse_expr (ex : expr) (env : environment) = match ex with
         res
     )
     | None -> Unresolved e
-    | _ -> failwith "type-error functioncall idk yet."
+    | Some r -> failwith ("type-error functioncall. lookup " ^ name ^ " got " ^ string_of_expr r ^ " for " ^ string_of_expr e)
   )
   | If_else (precond, true_branch, false_branch) as e -> (
     match parse_expr precond env with
@@ -223,6 +225,8 @@ let parse_file filename =
         try Parser.main Lexer.token lexbuf
         with _ -> failwith "parsing error"
     in 
+    (* IF DEBUG *)
+    print_prog res;
     let env = List.rev (parse_prog res []) in
     let env = resolve_all env 0 in
     (res, env)

@@ -1,12 +1,14 @@
 open Interpreter
 open Ast
 
+(* im lowkey good on testing rn lol *)
+
 type test_example = {
     name: string;
     expected_env: environment
 }
 
-let debug_mode = true
+let debug_mode = false
 
 let test_dirname = "test/"
 
@@ -18,6 +20,7 @@ let basic_add_test : test_example = {
         ("z", Integer 6)
     ]
 }
+
 
 let do_test (t : test_example) =
     let (_, result_env) = parse_file (test_dirname ^ t.name ^ ".d") in

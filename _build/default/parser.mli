@@ -20,6 +20,7 @@ type token =
   | IDENT of (string)
   | GTE
   | GT
+  | FUN
   | EXP
   | EQUAL
   | EOF
@@ -27,6 +28,7 @@ type token =
   | DIV
   | COMPARE
   | COMMA
+  | ARROW
 
 (* This exception is raised by the monolithic API functions. *)
 
