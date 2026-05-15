@@ -18,6 +18,7 @@ rule token = parse
   | ')' { RIGHT_PAREN }
   | ',' { COMMA }
   | "==" { COMPARE }
+  | "!=" { NOT_EQUAL }
   | '<' { LT }
   | "<=" { LTE }
   | '>' { GT }

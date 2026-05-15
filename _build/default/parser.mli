@@ -7,6 +7,7 @@ type token =
   | RIGHT_PAREN
   | PLUS
   | NUMBER of (float)
+  | NOT_EQUAL
   | NEWLINE
   | MULT
   | MINUS

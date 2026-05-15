@@ -20,6 +20,7 @@ open Ast
 %token IF THEN ELSE
 %token COMPARE
 %token LT LTE GT GTE
+%token NOT_EQUAL
 
 %left PLUS MINUS
 %left MULT DIV
@@ -42,8 +43,8 @@ stmts:
 stmt:
   | id = IDENT EQUAL e = expr
     { Assign (id, e) }
-  | e1 = expr LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN EQUAL e3 = expr 
-    { FunctionDef(e1, e2, e3) }
+  | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN EQUAL e3 = expr 
+    { FunctionDef(name, e2, e3) }
 
 expr:
   | n = NUMBER { Number n }
@@ -56,14 +57,15 @@ expr:
   | MINUS e = expr %prec UMINUS { Neg e }
   | LEFT_PAREN e = expr RIGHT_PAREN { e }
   | e1 = expr COMPARE e2 = expr { Compare(e1, e2) }
+  | e1 = expr NOT_EQUAL e2 = expr { NotEqual(e1, e2) }
   | e1 = expr LT e2 = expr { Lt(e1, e2) }
   | e1 = expr LTE e2 = expr { Lte(e1, e2) }
   | e1 = expr GT e2 = expr { Gt(e1, e2) }
   | e1 = expr GTE e2 = expr { Gte(e1, e2) }
   | IF e1 = expr THEN e2 = expr ELSE e3 = expr { If_else(e1, e2, e3) }
   | LEFT_SQR_BRACKET elems = expr_list_elems RIGHT_SQR_BRACKET { ExprList elems }
-  | e1 = expr LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN { FunctionCall(e1, e2) }
-
+  | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN { FunctionCall(name, e2) }
+  | e = expr LEFT_SQR_BRACKET idx = expr RIGHT_SQR_BRACKET { IndexOf(e, idx)}
 expr_list_elems:
   elems = rev_expr_list_elems { List.rev elems }
 

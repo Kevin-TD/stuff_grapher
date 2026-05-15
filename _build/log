@@ -1,4 +1,4 @@
-# dune exec ./main.exe --profile release
+# dune exec ./main.exe --profile release test6
 # OCAMLPARAM: unset
 # Shared cache: enabled-except-user-rules
 # Shared cache location: /home/sunflower/.cache/dune/db
@@ -13,4 +13,4 @@
 #  ; build_dir = In_build_dir "default"
 #  ; instrument_with = []
 #  }
-$ /home/sunflower/.opam/default/bin/ocamlc.opt -config > /tmp/dune_7149f2_output
+$ /home/sunflower/.opam/default/bin/ocamlc.opt -config > /tmp/dune_8a8e9f_output
