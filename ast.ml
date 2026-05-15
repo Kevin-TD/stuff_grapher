@@ -30,6 +30,8 @@ and stmt =
 
 type prog = stmt list
 
+type environment = (string * expr) list
+
 let rec string_of_expr = function
   | Integer i -> "Int(" ^ string_of_int i ^ ")"
   | Real r -> "Real(" ^ string_of_float r ^ ")"

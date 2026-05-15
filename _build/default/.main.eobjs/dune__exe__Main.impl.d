@@ -1,1 +1,1 @@
-main.ml: Array Ast Core Lexer Lexing List Parser Printf Sys
+main.ml: Array Ast Interpreter List Sys Test_suite
