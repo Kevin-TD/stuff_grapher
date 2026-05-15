@@ -173,6 +173,14 @@ and parse_expr (ex : expr) (env : environment) = match ex with
     | _ -> failwith "precond should be bool type"
   )
   | ExprList l -> ExprList (List.map (fun e -> parse_expr e env) l)
+  | IndexOf (e, idx) as t -> (match parse_expr e env, parse_expr idx env with
+    | Unresolved _, _ | _, Unresolved _ -> Unresolved t
+    | ExprList l, Integer i -> (match List.nth_opt l (i - 1) with
+      | Some e -> e
+      | None -> failwith "index out of bounds. it is 1-indexed btw"
+    )
+    | _ -> failwith "indexof type error"
+  )
   | _ as e -> failwith ("too lazy to parse " ^ string_of_expr e)
 
 let rec find_undefs (e : expr) (env : environment) = match e with
@@ -181,7 +189,7 @@ let rec find_undefs (e : expr) (env : environment) = match e with
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)
-  | Lte (e1, e2) | NotEqual (e1, e2)  -> (
+  | Lte (e1, e2) | NotEqual (e1, e2) | IndexOf (e1, e2)  -> (
     find_undefs e1 env @ find_undefs e2 env
   )
   | If_else (e1, e2, e3) ->

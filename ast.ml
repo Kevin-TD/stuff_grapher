@@ -31,7 +31,7 @@ and stmt =
 type prog = stmt list
 
 let rec string_of_expr = function
-  | Integer i -> "Integer(" ^ string_of_int i ^ ")"
+  | Integer i -> "Int(" ^ string_of_int i ^ ")"
   | Real r -> "Real(" ^ string_of_float r ^ ")"
   | Ident x -> "Ident(" ^ x ^ ")"
   | Plus (e1, e2) -> "Plus(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
