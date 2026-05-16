@@ -3,6 +3,9 @@
 (** @canonical Dune__exe.Ast *)
 module Ast = Dune__exe__Ast
 
+(** @canonical Dune__exe.Debug_config *)
+module Debug_config = Dune__exe__Debug_config
+
 (** @canonical Dune__exe.Interpreter *)
 module Interpreter = Dune__exe__Interpreter
 
@@ -14,6 +17,9 @@ module Main = Dune__exe__Main
 
 (** @canonical Dune__exe.Parser *)
 module Parser = Dune__exe__Parser
+
+(** @canonical Dune__exe.Passes *)
+module Passes = Dune__exe__Passes
 
 (** @canonical Dune__exe.Test_suite *)
 module Test_suite = Dune__exe__Test_suite

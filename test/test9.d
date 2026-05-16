@@ -4,3 +4,5 @@ b = fun (x, y) -> x + y
 b1 = b(1, 2)
 k(x, y) = x + y
 k1 = k(1, 2)
+kk = fun x -> x + 1
+kk1 = kk(1)

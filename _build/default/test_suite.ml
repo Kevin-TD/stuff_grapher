@@ -1,5 +1,6 @@
 open Interpreter
 open Ast
+open Debug_config
 
 (* im lowkey good on testing rn lol *)
 
@@ -7,8 +8,6 @@ type test_example = {
     name: string;
     expected_env: environment
 }
-
-let debug_mode = false
 
 let test_dirname = "test/"
 
@@ -23,7 +22,7 @@ let basic_add_test : test_example = {
 
 
 let do_test (t : test_example) =
-    let (_, result_env) = parse_file (test_dirname ^ t.name ^ ".d") in
+    let (_, result_env) = parse_file (test_dirname ^ t.name ^ ".d") false in
     List.iter 
     (fun (x, expected_expr) -> match lookup x result_env with
         | Some result_expr -> 

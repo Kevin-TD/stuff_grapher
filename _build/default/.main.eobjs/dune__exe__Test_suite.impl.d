@@ -1,1 +1,1 @@
-test_suite.ml: Ast Interpreter List
+test_suite.ml: Ast Debug_config Interpreter List

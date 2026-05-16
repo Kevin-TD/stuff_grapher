@@ -1,34 +1,26 @@
 open Printf
 open Ast
+open Debug_config
+open Passes
 
-(* im calling this "desmos clone" (dcl) *)
+(* im calling this NOT desmos clone. "Stuff Grapher" (SG) and the language will be
+Stuff Grapher Language (SGL, .sgl files later lol) *)
 (* file type .d or whatever it doesnt really matter *)
 (* its lowkey untyped *)
-
-(* statements can be in any order! simply must define everything *)
-(* TODO: disallow variable re-definitions?  <--- work on this tomorrow or whatever *)
-(* TODO: error if a symbol is still unresolved after the resolver runs? *)
-
-(* lazy function evaluation: eval functions only when called. dont worry about them at definition *)
-(* TODO: testing global variables with function calls. or at least document it. how it works is that the function adds its own env to the
-global env and whichever name appears first (which will be the function env) is selected  *)
-
-(* undefs in list types will be tricky... *)
-(* TODO: list indexing *)
-(* TODO: testing suite *)
+(* statements can be in any order *)
+(* language is interpreted and "weakly typed"(?). type checking happens at runtime. so something like
+"3 + []" is allowed by the language but will throw an erorr when ran due to undef result *)
+(* main difference, main reason why i made it, is cuz desmos doesnt allow
+parameters to be functions. here, because everything is lazy, we can do that!
+type checking isnt very strong but it allows me to easily implement that. 
+since functions are pretty much values we can have anonymous functions too.
+f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 
 (* TODO: Fn should be of string list not expr list to make it clear its params *)
-(* TODO: code cleanup LOL! *)
+(* TODO: code cleanup *)
 (* TODO: better errors *)
-
-(* dcl lists will be 1-indexed *)
-
-
-(* PLAN:
--make testing suite
--cleanup code
--add qol/lang features/constants on top
--port to a webpage *)
+(* TODO: document sgl *)
+(* TODO: better test names and more passes. improve infrastructure w/ passes *)
 
 let lookup (var_name : string) (env : environment) = 
   match List.find_opt (fun (x, _) -> x = var_name) env with
@@ -93,7 +85,7 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | Div (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> Integer (i1 / i2)
+    | Integer i1, Integer i2 -> Real (float_of_int i1 /. float_of_int i2)
     | Integer i, Real r -> Real (float_of_int i /. r)
     | Real r, Integer i -> Real (r /. float_of_int i)
     | Real r1, Real r2 -> Real (r1 /. r2)
@@ -218,15 +210,16 @@ let rec resolve_all (env : environment) (idx : int) =
   )
   | None -> env
 
-let parse_file filename =
+let parse_file filename debug =
     let inx = Core.In_channel.create filename in
     let lexbuf = Lexing.from_channel inx in
     let res =
         try Parser.main Lexer.token lexbuf
         with _ -> failwith "parsing error"
     in 
-    (* IF DEBUG *)
-    print_prog res;
+    if debug then print_prog res;
     let env = List.rev (parse_prog res []) in
     let env = resolve_all env 0 in
+    if debug then List.iter (fun (x, e) -> print_endline (x ^ ": " ^ string_of_expr e)) env;
+    if (no_var_redef_check env = Fail) then failwith "no_var_redef_check failed";
     (res, env)
