@@ -21,7 +21,7 @@ f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 (* TODO: better errors *)
 (* TODO: document sgl *)
 (* TODO: better test names and more passes. improve infrastructure w/ passes *)
-
+(* test *)
 let lookup (var_name : string) (env : environment) = 
   match List.find_opt (fun (x, _) -> x = var_name) env with
   | Some (_, Unresolved _) | None -> None
