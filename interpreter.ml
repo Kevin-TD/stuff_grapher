@@ -19,7 +19,8 @@ f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 (* TODO: better errors *)
 (* TODO: document sgl *)
 (* TODO: better test names and more passes. improve infrastructure w/ passes *)
-(* test *)
+(* TODO: pass error emission log *)
+
 let lookup (var_name : string) (env : environment) = 
   match List.find_opt (fun (x, _) -> x = var_name) env with
   | Some (_, Unresolved _) | None -> None
@@ -208,16 +209,16 @@ let rec resolve_all (env : environment) (idx : int) =
   )
   | None -> env
 
-let parse_file filename debug =
+let parse_file filename emit_output =
     let inx = open_in filename in
     let lexbuf = Lexing.from_channel inx in
     let res =
         try Parser.main Lexer.token lexbuf
         with _ -> failwith "parsing error"
     in 
-    if debug then print_prog res;
+    if emit_output then print_prog res;
     let env = List.rev (parse_prog res []) in
     let env = resolve_all env 0 in
-    if debug then List.iter (fun (x, e) -> print_endline (x ^ ": " ^ string_of_expr e)) env;
+    if emit_output then List.iter (fun (x, e) -> print_endline (x ^ ": " ^ string_of_expr e)) env;
     if (no_var_redef_check env = Fail) then failwith "no_var_redef_check failed";
     (res, env)

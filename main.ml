@@ -1,10 +1,9 @@
 open Interpreter
 open Test_suite
-open Debug_config
 
-let filename = "./test/" ^ Sys.argv.(1) ^ ".sgl"
+let filename = Config.test_dirname ^ Sys.argv.(1) ^ Config.file_ext
 
-let () = if debug then run_tests ()
+let () = if Config.run_tests then run_tests ()
 
 let _ =
-    parse_file filename debug
+    parse_file filename Config.emit_output
