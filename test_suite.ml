@@ -85,8 +85,46 @@ let bools_and_conds_test : test_example = {
 let list_and_indexing_test : test_example = {
     name = "list_and_indexing";
     env_to_satisfy = [
-        ("a", "a != [5, 6, 3]", fun e -> e = ExprList ([Integer 5; Integer 6; Integer 3])
-        )
+        ("a", "a != [5, 6, 3]", 
+            fun e -> e = ExprList ([Integer 5; Integer 6; Integer 3]);
+        );
+        ("b1", "b1 != 5", fun e -> e = Integer 5);
+        ("b2", "b2 != 6", fun e -> e = Integer 6);
+        ("b3", "b3 != 3", fun e -> e = Integer 3);
+        ("b4", "b4 != 6", fun e -> e = Integer 6)
+    ]
+}
+
+let factorial_test : test_example = {
+    name = "factorial";
+    env_to_satisfy = [
+        ("x", "x != Int 120", fun e -> e = Integer 120)
+    ]
+}
+
+let fun_param_test : test_example = {
+    name = "fun_param";
+    env_to_satisfy = [
+        ("r", "r != Int 5", fun e -> e = Integer 5)
+    ]
+}
+
+let anon_funcs_test : test_example = {
+    name = "anon_funcs";
+    env_to_satisfy = [
+        ("x1", "x1 != Int 8", fun e -> e = Integer 8);
+        ("b1", "b1 != Int 3", fun e -> e = Integer 3);
+        ("k1", "k1 != Int 3", fun e -> e = Integer 3);
+        ("kk1", "kk1 != Int 2", fun e -> e = Integer 2)
+    ]
+}
+
+let partial_app_test : test_example = {
+    name = "partial_app";
+    env_to_satisfy = [
+        ("h1", "h1 != -9.4", fun e -> match e with
+        | Real r -> real_eq r (-9.4)
+        | _ -> false)
     ]
 }
 
@@ -111,5 +149,9 @@ let run_tests () =
         fun_call_test;
         bools_and_conds_test;
         list_and_indexing_test;
+        factorial_test;
+        fun_param_test;
+        anon_funcs_test;
+        partial_app_test;
     ] in
     List.iter do_test tests

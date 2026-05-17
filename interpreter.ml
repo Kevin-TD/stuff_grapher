@@ -23,6 +23,7 @@ f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 (* TODO: more efficient resolve_all? *)
 (* TODO: more desmos math functions like trig, sigma notation, integrals? *)
 (* TODO: please bro better errors. specifically parse errors *)
+(* TODO: error if infinite loop *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
