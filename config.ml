@@ -8,7 +8,7 @@ let emit_test_eval_output = false
 let emit_output = true
 
 (** path to the folder of test files *)
-let test_dirname = "./test/"
+let env_test_dirname = "./test/env/"
 
 (** extension for SGL (Stuff Grapher Language) files that are expected for test files and input files *)
 let file_ext = ".sgl"

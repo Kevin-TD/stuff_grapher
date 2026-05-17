@@ -24,6 +24,7 @@ f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 (* TODO: more desmos math functions like trig, sigma notation, integrals? *)
 (* TODO: please bro better errors. specifically parse errors *)
 (* TODO: error if infinite loop *)
+(* TODO: one_unres test should be an error or pass test *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 

@@ -129,7 +129,7 @@ let partial_app_test : test_example = {
 }
 
 let do_test (t : test_example) =
-    let (_, result_env) = parse_file (Config.test_dirname ^ t.name ^ Config.file_ext) Config.emit_test_eval_output in
+    let (_, result_env) = parse_file (Config.env_test_dirname ^ t.name ^ Config.file_ext) Config.emit_test_eval_output in
     List.iter 
     (fun (x, if_err, cond_to_satsify) -> match lookup_full x result_env with
         | Some result_expr -> 
