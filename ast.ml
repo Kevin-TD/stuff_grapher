@@ -51,7 +51,7 @@ let rec string_of_expr = function
   | If_else (e1, e2, e3) -> "If_else(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ", " ^ string_of_expr e3 ^ ")"
   | ExprList l -> 
       "List([" ^ 
-      List.fold_left (fun acc e -> (string_of_expr e) ^ ", " ^ acc ) "" l ^
+      List.fold_right (fun e acc -> (string_of_expr e) ^ ", " ^ acc ) l "" ^
       "])"
   | FunctionCall (name, params) ->
     "FunctionCall(" ^ name ^ ", " ^ string_of_expr (ExprList params) ^ ")"

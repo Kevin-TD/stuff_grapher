@@ -1,6 +1,12 @@
 open Interpreter
 open Ast
 
+let is_unresolved = function
+    | Unresolved _ -> true
+    | _ -> false
+
+let is_resolved e = not (is_unresolved e)
+
 (** var [v : string] in an environemnt must satsify some specification [s : expr -> bool]. [o : string] is emitted if it is not satisfied, so   
 [env_to_satisfy : (v * o * s) list] *)
 type test_example = {
@@ -37,12 +43,6 @@ let swap_order_test : test_example = {
     ]
 }
 
-let is_unresolved = function
-    | Unresolved _ -> true
-    | _ -> false
-
-let is_resolved e = not (is_unresolved e)
-
 let one_unresolved_test : test_example = {
     name = "one_unres";
     env_to_satisfy = [
@@ -63,6 +63,32 @@ let fun_call_test : test_example = {
     ]
 }
 
+let bools_and_conds_test : test_example = {
+    name = "bools_and_conds";
+    env_to_satisfy = [
+        ("z3", "z3 != False", fun e -> e = False);
+        ("z2", "z2 != True", fun e -> e = True);
+        ("x", "x != True", fun e -> e = True);
+        ("y", "y != Int 1", fun e -> e = Integer 1);
+        ("z1", "z1 != True", fun e -> e = True);
+        ("e2", "e2 != Int 1", fun e -> e = Integer 1);
+        ("h", "h != False", fun e -> e = False);
+        ("i1", "i1 != Int 6", fun e -> e = Integer 6);
+        ("i2", "i2 != Int 5", fun e -> e = Integer 5);
+        ("k1", "k1 != Int 2", fun e -> e = Integer 2);
+        ("k2", "k2 != Int 3", fun e -> e = Integer 3);
+        ("k3", "k3 != Int 4", fun e -> e = Integer 4);
+        ("k4", "k4 != Int 5", fun e -> e = Integer 5)
+    ]
+}
+
+let list_and_indexing_test : test_example = {
+    name = "list_and_indexing";
+    env_to_satisfy = [
+        ("a", "a != [5, 6, 3]", fun e -> e = ExprList ([Integer 5; Integer 6; Integer 3])
+        )
+    ]
+}
 
 let do_test (t : test_example) =
     let (_, result_env) = parse_file (Config.test_dirname ^ t.name ^ Config.file_ext) Config.emit_test_eval_output in
@@ -83,5 +109,7 @@ let run_tests () =
         swap_order_test;
         one_unresolved_test;
         fun_call_test;
+        bools_and_conds_test;
+        list_and_indexing_test;
     ] in
     List.iter do_test tests

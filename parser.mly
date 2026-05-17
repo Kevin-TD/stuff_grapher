@@ -71,15 +71,13 @@ expr:
   | e1 = expr GT e2 = expr { Gt(e1, e2) }
   | e1 = expr GTE e2 = expr { Gte(e1, e2) }
   | IF e1 = expr THEN e2 = expr ELSE e3 = expr { If_else(e1, e2, e3) }
-  | LEFT_SQR_BRACKET elems = expr_list_elems RIGHT_SQR_BRACKET { ExprList elems }
+  | LEFT_SQR_BRACKET l = expr_list_elems RIGHT_SQR_BRACKET { ExprList l }
   | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN { FunctionCall(name, e2) }
   | FUN param = expr ARROW body = expr { Fn ([param], body) }
   | FUN LEFT_PAREN params = expr_list_elems RIGHT_PAREN ARROW body = expr
     { Fn (params, body) }
   | e = expr LEFT_SQR_BRACKET idx = expr RIGHT_SQR_BRACKET { IndexOf(e, idx)}
-expr_list_elems:
-  elems = rev_expr_list_elems { List.rev elems }
 
-rev_expr_list_elems:
+expr_list_elems:
   | /* empty */ { [] }
   | xs = separated_list(COMMA, expr) { xs }
