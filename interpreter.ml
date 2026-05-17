@@ -20,6 +20,15 @@ f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 (* TODO: document sgl *)
 (* TODO: better test names and more passes. improve infrastructure w/ passes *)
 (* TODO: pass error emission log *)
+(* TODO: more efficient resolve_all? *)
+(* TODO: more desmos math functions like trig, sigma notation, integrals? *)
+(* TODO: please bro better errors. specifically parse errors *)
+
+(** allows unresolved types to return from lookup *)
+let lookup_full (var_name : string) (env : environment) = 
+  match List.find_opt (fun (x, _) -> x = var_name) env with
+  | Some (_, e) -> Some e
+  | None -> None
 
 let lookup (var_name : string) (env : environment) = 
   match List.find_opt (fun (x, _) -> x = var_name) env with

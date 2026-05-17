@@ -1,36 +1,87 @@
 open Interpreter
 open Ast
 
-(* im lowkey good on testing rn lol *)
-
+(** var [v : string] in an environemnt must satsify some specification [s : expr -> bool]. [o : string] is emitted if it is not satisfied, so   
+[env_to_satisfy : (v * o * s) list] *)
 type test_example = {
     name: string;
-    expected_env: environment
+    env_to_satisfy: (string * string * (expr -> bool)) list
 }
 
-let test_dirname = "test/"
+(** checks if real nums [r] and [v] are equal by seeing if their difference [ |r - v| ] is no more than [ 10e-3 ]  *)
+let real_eq (r : float) (v : float) =
+    let epsilon = 10e-3 in
+    let diff = r -. v in
+    -1. *. epsilon <= diff && diff <= epsilon
 
-let basic_add_test : test_example = {
-    name = "basic_add";
-    expected_env = [
-        ("x", Integer 1);
-        ("y", Integer 5);
-        ("z", Integer 6)
+let add_test : test_example = {
+    name = "add";
+    env_to_satisfy = [
+        ("x", "x not equal to int 1", fun e -> e = Integer 1);
+        ("y", "y not equal to int 5", fun e -> e = Integer 5);
+        ("z", "z not equal to int 6", fun e -> e = Integer 6);
+    ]
+}
+
+let swap_order_test : test_example = {
+    name = "swap_order";
+    env_to_satisfy = [
+        ("w1", "w1 not (roughly) equal to real num 9.209", fun e -> match e with
+        | Real r -> real_eq r 9.209
+        | _ -> false);
+        ("w", "w != Int 7", fun e -> e = Integer 7);
+        ("z", "z != Int 4", fun e -> e = Integer 4);
+        ("y", "y != Int 3", fun e -> e = Integer 3);
+        ("x", "x != Int 1", fun e -> e = Integer 1);
+        ("h", "h != Int 1", fun e -> e = Integer 1);
+    ]
+}
+
+let is_unresolved = function
+    | Unresolved _ -> true
+    | _ -> false
+
+let is_resolved e = not (is_unresolved e)
+
+let one_unresolved_test : test_example = {
+    name = "one_unres";
+    env_to_satisfy = [
+        ("w", "w is Unresolved", is_resolved);
+        ("z", "z is Unresolved", is_resolved);
+        ("y", "y is Unresolved", is_resolved);
+        ("x", "x is Unresolved", is_resolved);
+        ("h", "h is Unresolved", is_resolved);
+        ("j", "j is not Unresolved", is_unresolved);
+    ]
+}
+
+let fun_call_test : test_example = {
+    name = "fun_call";
+    env_to_satisfy = [
+        ("j1", "j1 != Int 11", fun e -> e = Integer 11);
+        ("j2", "j2 != Int 47", fun e -> e = Integer 47)
     ]
 }
 
 
 let do_test (t : test_example) =
-    let (_, result_env) = parse_file (test_dirname ^ t.name ^ ".sgl") false in
+    let (_, result_env) = parse_file (Config.test_dirname ^ t.name ^ Config.file_ext) Config.emit_test_eval_output in
     List.iter 
-    (fun (x, expected_expr) -> match lookup x result_env with
+    (fun (x, if_err, cond_to_satsify) -> match lookup_full x result_env with
         | Some result_expr -> 
-            if result_expr = expected_expr then ()
+            if cond_to_satsify result_expr then ()
             else print_endline 
-            ("FAIL: test " ^ t.name ^ " failed: value " ^ x ^ " expected " ^ string_of_expr expected_expr ^ ", recevied " ^ string_of_expr result_expr)
-        | None -> print_endline ("FAIL: test " ^ t.name ^ " failed: " ^ x ^ " not found")
+            ("FAIL: test " ^ t.name ^ ". var " ^ x ^ " received value " ^ string_of_expr result_expr ^ ", but unsatisfied due to: " ^ if_err)
+        | None -> print_endline ("FAIL: test " ^ t.name ^ " failed. " ^ x ^ " not found")
     ) 
-    t.expected_env
+    t.env_to_satisfy
+
 
 let run_tests () =
-    do_test basic_add_test;
+    let tests = [
+        add_test;
+        swap_order_test;
+        one_unresolved_test;
+        fun_call_test;
+    ] in
+    List.iter do_test tests

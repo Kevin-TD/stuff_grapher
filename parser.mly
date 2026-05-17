@@ -39,8 +39,13 @@ main:
 
 stmts:
   | /* empty */ { [] }
-  | s = stmt NEWLINE rest = stmts { s :: rest }
+  | s = stmt newlines rest = stmts { s :: rest }
   | s = stmt EOF { [s] }
+
+// allows for empty lines
+newlines: 
+  | NEWLINE           { }
+  | newlines NEWLINE  { } 
 
 stmt:
   | id = IDENT EQUAL e = expr
@@ -71,10 +76,6 @@ expr:
   | FUN param = expr ARROW body = expr { Fn ([param], body) }
   | FUN LEFT_PAREN params = expr_list_elems RIGHT_PAREN ARROW body = expr
     { Fn (params, body) }
-
-  // r1 = x(fun x -> x + 1, 3)
-// r2 = x1(fun (x, y) -> x + y)
-
   | e = expr LEFT_SQR_BRACKET idx = expr RIGHT_SQR_BRACKET { IndexOf(e, idx)}
 expr_list_elems:
   elems = rev_expr_list_elems { List.rev elems }

@@ -3,10 +3,11 @@ open Parser
 }
 
 rule token = parse
-  | [' ' '\t']        { token lexbuf }
-  | '#' [^ '\n']*  { token lexbuf }
-  | '\n'              { NEWLINE }
-  | '='               { EQUAL }
+  | [' ' '\t']          { token lexbuf }
+  | '#' [^ '\n']* '\n'  { token lexbuf }   (* full comment line *)
+  | '#' [^ '\n']* eof   { token lexbuf }  (* comment at end of file *)
+  | '\n' { NEWLINE }
+  | '=' { EQUAL }
   | '+' { PLUS }
   | '-' { MINUS }
   | '*' { MULT }
@@ -32,7 +33,7 @@ rule token = parse
     { INTEGER (int_of_string i) }
   | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as r
     { REAL (float_of_string r)}
-  | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9']* as id
+  | ['A'-'Z' 'a'-'z' '_'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
    { IDENT id }
-  | eof               { EOF }
-  | _                 { failwith "unexpected char" }
+  | eof { EOF }
+  | _ { failwith "unexpected char" }

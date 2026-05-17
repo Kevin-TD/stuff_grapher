@@ -1,10 +1,11 @@
 open Ast
 
+(** runs analyses/passes to enforce rules *)
+
 type test_status =
     | Pass
     | Fail
 
-(** runs analyses/passes to enforce rules *)
 let no_var_redef_check (env : environment) =
     let stat = ref Pass in
     let var_counts : ((string * int ref) list) ref = ref [] in
