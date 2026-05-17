@@ -22,7 +22,7 @@ let basic_add_test : test_example = {
 
 
 let do_test (t : test_example) =
-    let (_, result_env) = parse_file (test_dirname ^ t.name ^ ".d") false in
+    let (_, result_env) = parse_file (test_dirname ^ t.name ^ ".sgl") false in
     List.iter 
     (fun (x, expected_expr) -> match lookup x result_env with
         | Some result_expr -> 
