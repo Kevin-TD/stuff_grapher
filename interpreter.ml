@@ -25,6 +25,12 @@ f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 (* TODO: please bro better errors. specifically parse errors *)
 (* TODO: error if infinite loop *)
 (* TODO: one_unres test should be an error or pass test *)
+(* TODO: rename "passes" and "test_suite" to make it more clear how connected they are in terms of testing the code *)
+
+
+(* TODO:   uhhhh for later i need the pass tests ... like they should run every time but also the tests
+i wrote in pass should also be examples and need a way to detect that they error in the right way.
+so basically, need better error types. *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
@@ -231,5 +237,6 @@ let parse_file filename emit_output =
     let env = List.rev (parse_prog res []) in
     let env = resolve_all env 0 in
     if emit_output then List.iter (fun (x, e) -> print_endline (x ^ ": " ^ string_of_expr e)) env;
-    if (no_var_redef_check env = Fail) then failwith "no_var_redef_check failed";
+    run_passes env;
+    
     (res, env)

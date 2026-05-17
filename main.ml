@@ -1,10 +1,8 @@
-open Interpreter
-open Test_suite
-
-
-let () = if Config.run_tests then run_tests ()
+let () = if Config.run_tests then Test_suite.run_tests ()
 
 let _ =
-    let filename = Config.env_test_dirname ^ Sys.argv.(1) ^ Config.file_ext in
-    let _ = parse_file filename Config.emit_output in 
+    let test_specified = Sys.argv.(1) in
+    let test_file = Sys.argv.(2) in
+    let filename = "test/" ^ test_specified ^ "/" ^ test_file ^ Config.file_ext in
+    let _ = Interpreter.parse_file filename Config.emit_output in 
     ()

@@ -43,7 +43,7 @@ let swap_order_test : test_example = {
     ]
 }
 
-let one_unresolved_test : test_example = {
+(* let one_unresolved_test : test_example = {
     name = "one_unres";
     env_to_satisfy = [
         ("w", "w is Unresolved", is_resolved);
@@ -53,7 +53,7 @@ let one_unresolved_test : test_example = {
         ("h", "h is Unresolved", is_resolved);
         ("j", "j is not Unresolved", is_unresolved);
     ]
-}
+} *)
 
 let fun_call_test : test_example = {
     name = "fun_call";
@@ -139,13 +139,11 @@ let do_test (t : test_example) =
         | None -> print_endline ("FAIL: test " ^ t.name ^ " failed. " ^ x ^ " not found")
     ) 
     t.env_to_satisfy
-
-
+    
 let run_tests () =
     let tests = [
         add_test;
         swap_order_test;
-        one_unresolved_test;
         fun_call_test;
         bools_and_conds_test;
         list_and_indexing_test;
