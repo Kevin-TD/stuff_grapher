@@ -1,5 +1,4 @@
 open Ast
-open Debug_config
 
 type test_status =
     | Pass

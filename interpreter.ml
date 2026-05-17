@@ -1,6 +1,4 @@
-open Printf
 open Ast
-open Debug_config
 open Passes
 
 (* im calling this NOT desmos clone. "Stuff Grapher" (SG) and the language will be
@@ -193,7 +191,7 @@ let rec find_undefs (e : expr) (env : environment) = match e with
   | Neg e -> find_undefs e env
   | ExprList l -> 
     List.fold_left (fun acc x -> acc @ find_undefs x env) [] l
-  | FunctionCall (x, l) -> 
+  | FunctionCall (_, l) -> 
     find_undefs (ExprList l) env
   | _ -> failwith ("too lazy to find the undefs for " ^ string_of_expr e)
 
@@ -211,7 +209,7 @@ let rec resolve_all (env : environment) (idx : int) =
   | None -> env
 
 let parse_file filename debug =
-    let inx = Core.In_channel.create filename in
+    let inx = open_in filename in
     let lexbuf = Lexing.from_channel inx in
     let res =
         try Parser.main Lexer.token lexbuf

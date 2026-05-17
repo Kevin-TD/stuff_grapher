@@ -1,6 +1,5 @@
 open Interpreter
 open Ast
-open Debug_config
 
 (* im lowkey good on testing rn lol *)
 

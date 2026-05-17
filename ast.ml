@@ -62,7 +62,7 @@ let rec string_of_expr = function
     "Fn(" ^ string_of_expr (ExprList params) ^ ", " ^ string_of_expr body ^ ")"
   | IndexOf (e, idx) ->
     "IndexOf(" ^ string_of_expr e ^ ", " ^ string_of_expr idx ^ ")"
-let rec string_of_stmt = function
+let string_of_stmt = function
     | Assign (x, s) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")"
     | FunctionDef (x, e1, e2) -> 
     "FunctionDef(" ^ x ^ ", " ^ string_of_expr (ExprList e1) ^ ", " ^ string_of_expr e2 ^ ")"
