@@ -1,18 +1,16 @@
 open Ast
 open Passes
 
-(* im calling this NOT desmos clone. "Stuff Grapher" (SG) and the language will be
-Stuff Grapher Language (SGL, .sgl files later lol) *)
-(* file type .d or whatever it doesnt really matter *)
-(* its lowkey untyped *)
+(* this is for the Stuff Grapher (SG) project and its language, 
+Stuff Grapher Language (SGL) *)
+(* file extension .sgl *)
+(* weakly typed *)
 (* statements can be in any order *)
-(* language is interpreted and "weakly typed"(?). type checking happens at runtime. so something like
-"3 + []" is allowed by the language but will throw an erorr when ran due to undef result *)
 (* main difference, main reason why i made it, is cuz desmos doesnt allow
 parameters to be functions. here, because everything is lazy, we can do that!
-type checking isnt very strong but it allows me to easily implement that. 
-since functions are pretty much values we can have anonymous functions too.
-f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
+type checking isnt very strong but it allows me to easily implement that.  *)
+(* additionally: *)
+(* lists are 1-indexed *)
 
 (* TODO: Fn should be of string list not expr list to make it clear its params *)
 (* TODO: code cleanup *)
@@ -70,6 +68,7 @@ and parse_expr (ex : expr) (env : environment) =
   match ex with
   | Integer _ | Real _ as n -> n
   | True | False as b -> b
+  | UndefinedError _ | IndexOutOfBoundsError _ as err -> err
   | Fn _ as f -> f
   | Ident x as id -> (match lookup x env with
     | Some e -> e
@@ -224,22 +223,32 @@ and parse_expr (ex : expr) (env : environment) =
     | True -> parse_expr true_branch env
     | False -> parse_expr false_branch env
     | Unresolved _ -> Unresolved e
-    | _ -> failwith "precond should be bool type"
+    | UndefinedError err -> UndefinedError (e :: err)
+    | _ -> UndefinedError [e]
   )
-  | ExprList l -> ExprList (List.map (fun e -> parse_expr e env) l)
+  | ExprList l -> 
+    (** i will decide for now that an UndefinedError in one of the elements will NOT
+     make the entire list an UndefinedError *)
+    ExprList (List.map (fun e -> parse_expr e env) l)
   | IndexOf (e, idx) as t -> (match parse_expr e env, parse_expr idx env with
     | Unresolved _, _ | _, Unresolved _ -> Unresolved t
-    | ExprList l, Integer i -> (match List.nth_opt l (i - 1) with
-      | Some e -> e
-      | None -> failwith "index out of bounds. it is 1-indexed btw"
+    | UndefinedError err, _ | _, UndefinedError err -> UndefinedError (t :: err)
+    | ExprList l, Integer i -> (
+      try (
+        match List.nth_opt l (i - 1) with
+        | Some e -> e
+        | None -> IndexOutOfBoundsError t
+      ) 
+      with Invalid_argument _ -> UndefinedError [t]
     )
-    | _ -> failwith "indexof type error"
+    | _ -> UndefinedError [t]
   )
   | _ as e -> failwith ("too lazy to parse " ^ string_of_expr e)
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
-  | Integer _ | Real _ | True | False | UndefinedError _ -> []
+  | Integer _ | Real _ | True | False | UndefinedError _
+  | IndexOutOfBoundsError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)
@@ -273,7 +282,11 @@ let parse_file filename emit_output =
     let lexbuf = Lexing.from_channel inx in
     let res =
         try Parser.main Lexer.token lexbuf
-        with _ -> failwith "parsing error"
+        with 
+        | Parser.Error -> (
+          failwith ("parse error")
+        )
+        | Failure msg -> failwith ("lex error: " ^ msg)
     in 
     if emit_output then print_prog res;
     let env = List.rev (parse_prog res []) in

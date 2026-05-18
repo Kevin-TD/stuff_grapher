@@ -21,6 +21,7 @@ type expr =
   | IndexOf of expr * expr (* list type, numerical index (0 indexed) *)
   (* non-typeable *)
   | UndefinedError of expr list
+  | IndexOutOfBoundsError of expr
   | True
   | False 
   | Unresolved of expr
@@ -67,6 +68,8 @@ let rec string_of_expr = function
     "IndexOf(" ^ string_of_expr e ^ ", " ^ string_of_expr idx ^ ")"
   | UndefinedError l ->
     "UndefinedError(" ^ string_of_expr (ExprList l) ^ ")"
+  | IndexOutOfBoundsError e ->
+    "IndexOutOfBoundsError(" ^ string_of_expr e ^ ")"
     
 let string_of_stmt = function
     | Assign (x, s) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")"

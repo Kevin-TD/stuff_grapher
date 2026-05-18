@@ -7,8 +7,8 @@ let is_unresolved = function
 
 let is_resolved e = not (is_unresolved e)
 
-(** var [v : string] in an environemnt must satsify some specification [s : expr -> bool]. [o : string] is emitted if it is not satisfied, so   
-[env_to_satisfy : (v * o * s) list] *)
+(** var [v : string] in an environemnt must satsify some specification [s : expr -> bool]. [if_err : string] is emitted if it is not satisfied, so   
+[env_to_satisfy : (v * if_err * s) list] *)
 type test_example = {
     name: string;
     env_to_satisfy: (string * string * (expr -> bool)) list
@@ -42,18 +42,6 @@ let swap_order_test : test_example = {
         ("h", "h != Int 1", fun e -> e = Integer 1);
     ]
 }
-
-(* let one_unresolved_test : test_example = {
-    name = "one_unres";
-    env_to_satisfy = [
-        ("w", "w is Unresolved", is_resolved);
-        ("z", "z is Unresolved", is_resolved);
-        ("y", "y is Unresolved", is_resolved);
-        ("x", "x is Unresolved", is_resolved);
-        ("h", "h is Unresolved", is_resolved);
-        ("j", "j is not Unresolved", is_unresolved);
-    ]
-} *)
 
 let fun_call_test : test_example = {
     name = "fun_call";
