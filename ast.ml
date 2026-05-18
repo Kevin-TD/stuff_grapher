@@ -50,10 +50,12 @@ let rec string_of_expr = function
   | Gt (e1, e2) -> "Gt(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | Gte (e1, e2) -> "Gte(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | If_else (e1, e2, e3) -> "If_else(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ", " ^ string_of_expr e3 ^ ")"
-  | ExprList l -> 
-      "List([" ^ 
-      List.fold_right (fun e acc -> (string_of_expr e) ^ ", " ^ acc ) l "" ^
-      "])"
+  | ExprList l ->
+    let lst = ref [] in
+    List.iter (fun e -> lst := string_of_expr e :: !lst) l;
+    lst := List.rev !lst;
+    let els = String.concat ", " !lst in
+    "List([" ^ els ^ "])"
   | FunctionCall (name, params) ->
     "FunctionCall(" ^ name ^ ", " ^ string_of_expr (ExprList params) ^ ")"
   | True -> "True"
