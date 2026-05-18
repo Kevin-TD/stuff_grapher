@@ -16,19 +16,14 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: code cleanup *)
 (* TODO: better errors *)
 (* TODO: document sgl *)
-(* TODO: better test names and more passes. improve infrastructure w/ passes *)
 (* TODO: pass error emission log *)
 (* TODO: more efficient resolve_all? *)
 (* TODO: more desmos math functions like trig, sigma notation, integrals? *)
-(* TODO: please bro better errors. specifically parse errors *)
 (* TODO: error if infinite loop *)
-(* TODO: one_unres test should be an error or pass test *)
-(* TODO: rename "passes" and "test_suite" to make it more clear how connected they are in terms of testing the code *)
-
-
-(* TODO: uhhhh for later i need the pass tests ... like they should run every time but also the tests
-i wrote in pass should also be examples and need a way to detect that they error in the right way.
-so basically, need better error types. *)
+(* TODO: improve parse error log + unify env, error, pass test + more rigorous, consistent testing for
+pass + error *)
+(* TODO: rename parse_expr to eval_expr? *)
+(* TODO: list comprehension/mapping/filtering in sgl *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
@@ -68,8 +63,10 @@ and parse_expr (ex : expr) (env : environment) =
   match ex with
   | Integer _ | Real _ as n -> n
   | True | False as b -> b
-  | UndefinedError _ | IndexOutOfBoundsError _ as err -> err
-  | Fn _ as f -> f
+  | UndefinedError _ | IndexOutOfBoundsError _ 
+  | FunctionCallError _ as err -> err
+  | Unresolved _ as unres -> unres
+  | Fn _ | ExternFn _ as f -> f
   | Ident x as id -> (match lookup x env with
     | Some e -> e
     | None -> Unresolved id
@@ -198,16 +195,17 @@ and parse_expr (ex : expr) (env : environment) =
     | _, UndefinedError err -> UndefinedError (t :: err)
     | e1, e2 -> bool_wrap (e1 <> e2)
   )
-  | FunctionCall (name, args) as e -> (match lookup name env with
+  | FunctionCall (name, args) as ex -> (match lookup name env with
     | Some (Fn (params, body)) -> (
       if not (List.length args = List.length params) then
-        failwith "mismatch b/w arglen and paramlen"
+        FunctionCallError("mismatch b/w arglen and paramlen", ex)
       else
         let fn_env = 
           List.mapi 
           (fun i e -> match e with 
             | Ident x -> 
               (x, parse_expr (List.nth args i) env)
+            (* TODO: handle the error better *)
             | _ -> failwith "fn params should all be ident"
           ) params
         in 
@@ -215,8 +213,15 @@ and parse_expr (ex : expr) (env : environment) =
         let res = parse_expr body upd_env in
         res
     )
-    | None -> Unresolved e
-    | Some r -> failwith ("type-error functioncall. lookup " ^ name ^ " got " ^ string_of_expr r ^ " for " ^ string_of_expr e)
+    | Some (ExternFn (arity, fn)) -> (
+      if not (List.length args = arity) then
+         FunctionCallError("mismatch b/w arglen and paramlen", ex)
+      else
+        let parsed_args = List.map (fun arg -> parse_expr arg env) args in 
+        fn parsed_args
+    )
+    | None -> Unresolved ex
+    | Some r -> UndefinedError [ex]
   )
   | If_else (precond, true_branch, false_branch) as e -> (
     match parse_expr precond env with
@@ -243,12 +248,11 @@ and parse_expr (ex : expr) (env : environment) =
     )
     | _ -> UndefinedError [t]
   )
-  | _ as e -> failwith ("too lazy to parse " ^ string_of_expr e)
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
-  | Integer _ | Real _ | True | False | UndefinedError _
-  | IndexOutOfBoundsError _ -> []
+  | Integer _ | Real _ | True | False | Fn _ | ExternFn _ 
+  | UndefinedError _ | IndexOutOfBoundsError _ | FunctionCallError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)
@@ -262,7 +266,6 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
     List.fold_left (fun acc x -> acc @ find_unresolved x env) [] l
   | FunctionCall (_, l) -> 
     find_unresolved (ExprList l) env
-  | _ -> failwith ("too lazy to find the undefs for " ^ string_of_expr e)
 
 let rec resolve_all (env : environment) (idx : int) = 
   match List.nth_opt env idx with
@@ -289,7 +292,7 @@ let parse_file filename emit_output =
         | Failure msg -> failwith ("lex error: " ^ msg)
     in 
     if emit_output then print_prog res;
-    let env = List.rev (parse_prog res []) in
+    let env = List.rev (parse_prog res Builtins.env) in
     let env = resolve_all env 0 in
     if emit_output then List.iter (fun (x, e) -> print_endline (x ^ ": " ^ string_of_expr e)) env;
     run_passes env;

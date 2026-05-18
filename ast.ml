@@ -19,12 +19,18 @@ type expr =
   | FunctionCall of string * expr list (* name, args *)
   | Fn of expr list * expr (* unnamed function that just has params and body *)
   | IndexOf of expr * expr (* list type, numerical index (0 indexed) *)
-  (* non-typeable *)
+
+  (* non-typeable: the user cannot create instances of these exprs but they are nonetheless
+  used internally. 
+  note: a user can reference an ExternFn by its name (e.g., "sqrt") but cannot create a value of that type. *)
   | UndefinedError of expr list
   | IndexOutOfBoundsError of expr
+  | FunctionCallError of (string * expr)
   | True
   | False 
   | Unresolved of expr
+  | ExternFn of int * (expr list -> expr) (* arity, implementiation of "outside" (externed) 
+  function. e.g., sqrt *)
 
 and stmt =
   | FunctionDef of string * expr list * expr (* name, params, body *)
@@ -70,6 +76,9 @@ let rec string_of_expr = function
     "UndefinedError(" ^ string_of_expr (ExprList l) ^ ")"
   | IndexOutOfBoundsError e ->
     "IndexOutOfBoundsError(" ^ string_of_expr e ^ ")"
+  | FunctionCallError (msg, e) -> 
+    "FunctionCallError(" ^ msg ^ ", " ^ string_of_expr e ^ ")"
+  | ExternFn (arity, _) -> "ExternFn(" ^ string_of_int arity ^ ", ...)"
     
 let string_of_stmt = function
     | Assign (x, s) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")"
