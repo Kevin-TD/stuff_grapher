@@ -83,9 +83,9 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> Real (r1 +. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Minus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -95,9 +95,9 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> Real (r1 -. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Mult (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -107,9 +107,9 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> Real (r1 *. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Div (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -119,9 +119,9 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> Real (r1 /. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Exp (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -131,17 +131,17 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> Real (r1 +. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Neg ex as e -> (
     match parse_expr ex env with
     | Integer i -> Integer (-1 * i)
     | Real r -> Real (-1. *. r)
     | Unresolved _ -> Unresolved e
-    | TypeError err -> TypeError (e :: err)
-    | _ -> TypeError [e]
+    | UndefinedError err -> UndefinedError (e :: err)
+    | _ -> UndefinedError [e]
   )
   | Gt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 > i2)
@@ -150,9 +150,9 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> bool_wrap (r1 > r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Gte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 >= i2)
@@ -161,9 +161,9 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> bool_wrap (r1 >= r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Lt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 < i2)
@@ -172,9 +172,9 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> bool_wrap (r1 < r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Lte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 <= i2)
@@ -183,16 +183,20 @@ and parse_expr (ex : expr) (env : environment) =
     | Real r1, Real r2 -> bool_wrap (r1 <= r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
-    | TypeError err, _
-    | _, TypeError err -> TypeError (e :: err)
-    | _, _ -> TypeError [e]
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (e :: err)
+    | _, _ -> UndefinedError [e]
   )
   | Compare (t1, t2) as t -> (match parse_expr t1 env, parse_expr t2 env with
     | Unresolved _, _ | _, Unresolved _ -> Unresolved t
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (t :: err)
     | e1, e2 -> bool_wrap (e1 = e2)
   )
   | NotEqual (t1, t2) as t -> (match parse_expr t1 env, parse_expr t2 env with
     | Unresolved _, _ | _, Unresolved _ -> Unresolved t
+    | UndefinedError err, _
+    | _, UndefinedError err -> UndefinedError (t :: err)
     | e1, e2 -> bool_wrap (e1 <> e2)
   )
   | FunctionCall (name, args) as e -> (match lookup name env with
@@ -235,7 +239,7 @@ and parse_expr (ex : expr) (env : environment) =
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
-  | Integer _ | Real _ | True | False | TypeError _ -> []
+  | Integer _ | Real _ | True | False | UndefinedError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)
