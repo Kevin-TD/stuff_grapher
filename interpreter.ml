@@ -85,7 +85,6 @@ and parse_expr (ex : expr) (env : environment) =
     | _, Unresolved _ -> Unresolved e
     | TypeError err, _
     | _, TypeError err -> TypeError (e :: err)
-    (** vars are resolute (not unresolved nor error type) but the operator is not defined *)
     | _, _ -> TypeError [e]
   )
   | Minus (e1, e2) as e -> (
@@ -94,7 +93,11 @@ and parse_expr (ex : expr) (env : environment) =
     | Integer i, Real r -> Real (float_of_int i -. r)
     | Real r, Integer i -> Real (r -. float_of_int i)
     | Real r1, Real r2 -> Real (r1 -. r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
   | Mult (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -102,7 +105,11 @@ and parse_expr (ex : expr) (env : environment) =
     | Integer i, Real r 
     | Real r, Integer i -> Real (r *. float_of_int i)
     | Real r1, Real r2 -> Real (r1 *. r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
   | Div (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -110,7 +117,11 @@ and parse_expr (ex : expr) (env : environment) =
     | Integer i, Real r -> Real (float_of_int i /. r)
     | Real r, Integer i -> Real (r /. float_of_int i)
     | Real r1, Real r2 -> Real (r1 /. r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
   | Exp (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -118,41 +129,63 @@ and parse_expr (ex : expr) (env : environment) =
     | Integer i, Real r -> Real ((float_of_int i) ** r)
     | Real r, Integer i -> Real (r ** (float_of_int i))
     | Real r1, Real r2 -> Real (r1 +. r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
-  | Neg e -> (
-    match parse_expr e env with
+  | Neg ex as e -> (
+    match parse_expr ex env with
     | Integer i -> Integer (-1 * i)
     | Real r -> Real (-1. *. r)
-    | _ -> Unresolved e
+    | Unresolved _ -> Unresolved e
+    | TypeError err -> TypeError (e :: err)
+    | _ -> TypeError [e]
   )
   | Gt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 > i2)
     | Integer i, Real r -> bool_wrap (float_of_int i > r)
     | Real r, Integer i -> bool_wrap (r > float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 > r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
   | Gte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 >= i2)
     | Integer i, Real r -> bool_wrap (float_of_int i >= r)
     | Real r, Integer i -> bool_wrap (r >= float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 >= r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
   | Lt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 < i2)
     | Integer i, Real r -> bool_wrap (float_of_int i < r)
     | Real r, Integer i -> bool_wrap (r < float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 < r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
   | Lte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
     | Integer i1, Integer i2 -> bool_wrap (i1 <= i2)
     | Integer i, Real r -> bool_wrap (float_of_int i <= r)
     | Real r, Integer i -> bool_wrap (r <= float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 <= r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    | _, _ -> TypeError [e]
   )
   | Compare (t1, t2) as t -> (match parse_expr t1 env, parse_expr t2 env with
     | Unresolved _, _ | _, Unresolved _ -> Unresolved t

@@ -128,6 +128,13 @@ let partial_app_test : test_example = {
     ]
 }
 
+let neg_swap_test : test_example = {
+    name = "neg_swap";
+    env_to_satisfy = [
+        ("h", "h != -5", fun e -> e = Integer (-5))
+    ]
+}
+
 let do_test (t : test_example) =
     let (_, result_env) = parse_file (Config.env_test_dirname ^ t.name ^ Config.file_ext) Config.emit_test_eval_output in
     List.iter 
@@ -151,5 +158,6 @@ let run_tests () =
         fun_param_test;
         anon_funcs_test;
         partial_app_test;
+        neg_swap_test;
     ] in
     List.iter do_test tests
