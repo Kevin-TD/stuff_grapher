@@ -24,6 +24,7 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 pass + error *)
 (* TODO: rename parse_expr to eval_expr? *)
 (* TODO: list comprehension/mapping/filtering in sgl *)
+(* TODO: when building frontend, inverse trig functions should have sugar of sin^-1 and what not *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
