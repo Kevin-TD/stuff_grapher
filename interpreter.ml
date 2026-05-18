@@ -28,7 +28,7 @@ f({params}) = {body} is sugar for f = fun {params} -> {body}. *)
 (* TODO: rename "passes" and "test_suite" to make it more clear how connected they are in terms of testing the code *)
 
 
-(* TODO:   uhhhh for later i need the pass tests ... like they should run every time but also the tests
+(* TODO: uhhhh for later i need the pass tests ... like they should run every time but also the tests
 i wrote in pass should also be examples and need a way to detect that they error in the right way.
 so basically, need better error types. *)
 
@@ -81,7 +81,12 @@ and parse_expr (ex : expr) (env : environment) =
     | Integer i, Real r 
     | Real r, Integer i -> Real (r +. float_of_int i)
     | Real r1, Real r2 -> Real (r1 +. r2)
-    | _ -> Unresolved e
+    | Unresolved _, _
+    | _, Unresolved _ -> Unresolved e
+    | TypeError err, _
+    | _, TypeError err -> TypeError (e :: err)
+    (** vars are resolute (not unresolved nor error type) but the operator is not defined *)
+    | _, _ -> TypeError [e]
   )
   | Minus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -195,29 +200,29 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | _ as e -> failwith ("too lazy to parse " ^ string_of_expr e)
 
-let rec find_undefs (e : expr) (env : environment) = match e with
-  | Unresolved u -> find_undefs u env
-  | Integer _ | Real _ | True | False -> []
+let rec find_unresolved (e : expr) (env : environment) = match e with
+  | Unresolved u -> find_unresolved u env
+  | Integer _ | Real _ | True | False | TypeError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)
   | Lte (e1, e2) | NotEqual (e1, e2) | IndexOf (e1, e2)  -> (
-    find_undefs e1 env @ find_undefs e2 env
+    find_unresolved e1 env @ find_unresolved e2 env
   )
   | If_else (e1, e2, e3) ->
-    find_undefs e1 env @ find_undefs e2 env @ find_undefs e3 env
-  | Neg e -> find_undefs e env
+    find_unresolved e1 env @ find_unresolved e2 env @ find_unresolved e3 env
+  | Neg e -> find_unresolved e env
   | ExprList l -> 
-    List.fold_left (fun acc x -> acc @ find_undefs x env) [] l
+    List.fold_left (fun acc x -> acc @ find_unresolved x env) [] l
   | FunctionCall (_, l) -> 
-    find_undefs (ExprList l) env
+    find_unresolved (ExprList l) env
   | _ -> failwith ("too lazy to find the undefs for " ^ string_of_expr e)
 
 let rec resolve_all (env : environment) (idx : int) = 
   match List.nth_opt env idx with
   | Some (x, e) -> (match e with 
     | Unresolved v ->
-      if find_undefs e env = [] then 
+      if find_unresolved e env = [] then 
         let env = List.filter (fun (x', _) -> not (x = x')) env in
         resolve_all ((x, parse_expr v env) :: env) 0 
       else 

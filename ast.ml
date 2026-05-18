@@ -17,12 +17,13 @@ type expr =
   | If_else of expr * expr * expr
   | ExprList of expr list
   | FunctionCall of string * expr list (* name, args *)
+  | Fn of expr list * expr (* unnamed function that just has params and body *)
   | IndexOf of expr * expr (* list type, numerical index (0 indexed) *)
   (* non-typeable *)
+  | TypeError of expr list
   | True
   | False 
   | Unresolved of expr
-  | Fn of expr list * expr (* unnamed function that just has params and body *)
 
 and stmt =
   | FunctionDef of string * expr list * expr (* name, params, body *)
@@ -62,6 +63,9 @@ let rec string_of_expr = function
     "Fn(" ^ string_of_expr (ExprList params) ^ ", " ^ string_of_expr body ^ ")"
   | IndexOf (e, idx) ->
     "IndexOf(" ^ string_of_expr e ^ ", " ^ string_of_expr idx ^ ")"
+  | TypeError l ->
+    "TypeError(" ^ string_of_expr (ExprList l) ^ ")"
+    
 let string_of_stmt = function
     | Assign (x, s) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")"
     | FunctionDef (x, e1, e2) -> 
