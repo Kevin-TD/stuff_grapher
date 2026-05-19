@@ -1,3 +1,4 @@
-[i + z : i = Range(1, 10)]
 [i | i == z : i = Range(1, 20)]
+[i + z : i = Range(1, 10)]
 z = 10
+e = 1

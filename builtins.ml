@@ -57,5 +57,7 @@ let extern_functions = [
         | _ -> UndefinedError args
     ))
 ]
-
 let env = constants @ extern_functions
+let taken_names = List.map (fun (x, _) -> x) env
+let name_is_taken s = 
+    List.exists (fun x -> x = s) taken_names

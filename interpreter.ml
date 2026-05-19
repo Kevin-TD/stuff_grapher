@@ -392,6 +392,12 @@ let parse_file filename emit_output =
     if emit_output then print_prog res;
     let env = List.rev (parse_prog res Builtins.env) in
     let env = resolve_all env 0 in
-    if emit_output then List.iter (fun (x, e) -> print_endline (x ^ ": " ^ string_of_expr e)) env;
+    if emit_output then 
+      List.iter (fun (x, e) -> 
+        if Builtins.name_is_taken x && not (Config.emit_builtins_in_env) then
+          ()
+        else
+          print_endline (x ^ ": " ^ string_of_expr e)) 
+    env;
     run_passes env;
     (res, env)
