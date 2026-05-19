@@ -52,6 +52,7 @@ let rec pow a = function
     let b = pow a (n / 2) in
     b * b * (if n mod 2 = 0 then 1 else a)
 
+(* TODO: make this var a bit less isolated. this should work on a per-prog parsing basis but even test files would increase this counter! *)
 let wildcard_count = ref 0 
 
 let rec parse_prog (p : prog) (env : environment) =
@@ -235,7 +236,7 @@ and parse_expr (ex : expr) (env : environment) =
         fn parsed_args
     )
     | None -> Unresolved ex
-    | Some r -> UndefinedError [ex]
+    | Some _ -> UndefinedError [ex]
   )
   | If_else (precond, true_branch, false_branch) as e -> (
     match parse_expr precond env with
@@ -264,14 +265,24 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | ListComp (e, var_name, l) as t -> (match parse_expr l env with
     | ExprList l -> (
+      let has_unresolved = ref false in
       let l_res = 
         List.init (List.length l) 
         (fun idx ->
           let cur_iter = List.nth l idx in
           let list_comp_env = (var_name, cur_iter) :: env in
-          parse_expr e list_comp_env
+          match parse_expr e list_comp_env with
+          | Unresolved _ as u -> (
+            has_unresolved := true;
+            u
+          )
+          | _ as e -> e
         ) 
-        in ExprList l_res
+        in 
+        if !has_unresolved then
+          Unresolved t
+        else
+          ExprList l_res
     )
     | Unresolved _ -> Unresolved t
     | UndefinedError err -> UndefinedError (t :: err)
@@ -279,6 +290,7 @@ and parse_expr (ex : expr) (env : environment) =
   ) 
   | ListCompFilter (e, filter, var_name, l) as t -> (match parse_expr l env with
     | ExprList l -> (
+      let has_unresolved = ref false in
       let l_res = 
         List.init (List.length l) 
         (fun idx ->
@@ -289,14 +301,20 @@ and parse_expr (ex : expr) (env : environment) =
           match (parse_expr filter i_res_env) with
             | True -> Some i_res
             | False -> None
-            | Unresolved _ as u -> Some u
+            | Unresolved _ as u -> (
+              has_unresolved := true;
+              Some u
+            )
             | UndefinedError _ as err -> Some err
             | _ as eval -> Some (UndefinedError [eval])
         )
         in 
         let l_res = List.filter (fun e -> e <> None) l_res in
         let l_res = List.map (fun e -> match e with Some e -> e | _ -> failwith "filtering somehow did not exclude all Nones") l_res in
-        ExprList l_res
+        if !has_unresolved then
+          Unresolved t
+        else
+          ExprList l_res
     )
     | Unresolved _ -> Unresolved t
     | UndefinedError err -> UndefinedError (t :: err)
@@ -320,9 +338,16 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
     List.fold_left (fun acc x -> acc @ find_unresolved x env) [] l
   | FunctionCall (_, l) -> 
     find_unresolved (ExprList l) env
-  | ListComp (e, _, l) -> find_unresolved e env @ find_unresolved l env
-  | ListCompFilter (e, f, _, l) -> 
-    find_unresolved e env @ find_unresolved f env @ find_unresolved l env
+  | ListComp (e, var_name, l) ->
+    let res = find_unresolved e env @ find_unresolved l env in
+    let res = List.sort_uniq String.compare res in
+    let res = List.filter (fun s -> not (s = var_name)) res in
+    res
+  | ListCompFilter (e, f, var_name, l) ->
+    let res = find_unresolved e env @ find_unresolved f env @ find_unresolved l env in
+    let res = List.sort_uniq String.compare res in
+    let res = List.filter (fun s -> not (s = var_name)) res in
+    res
 
 let rec resolve_all (env : environment) (idx : int) = 
   match List.nth_opt env idx with
@@ -332,6 +357,13 @@ let rec resolve_all (env : environment) (idx : int) =
         let env = List.filter (fun (x', _) -> not (x = x')) env in
         resolve_all ((x, parse_expr v env) :: env) 0 
       else 
+        resolve_all env (idx + 1)
+    | ExprList lst as expr_lst -> 
+      if find_unresolved expr_lst env = [] then (
+        let lst = List.map (fun e -> match e with Unresolved e -> e | _ -> e) lst in
+        let env = List.filter (fun (x', _) -> not (x = x')) env in
+        resolve_all ((x, parse_expr (ExprList lst) env) :: env) (idx + 1)
+      ) else 
         resolve_all env (idx + 1)
     | _ -> resolve_all env (idx + 1)
   )
