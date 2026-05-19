@@ -35,7 +35,7 @@ rule token = parse
     { INTEGER (int_of_string i) }
   | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as r
     { REAL (float_of_string r)}
-  | ['A'-'Z' 'a'-'z' '_'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
+  | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
    { IDENT id }
   | eof { EOF }
   | _ { failwith (Printf.sprintf "unexpected char at line %d"

@@ -1,3 +1,5 @@
+type pos = { line: int; col: int }
+
 type expr =
   | Integer of int
   | Real of float
@@ -37,7 +39,7 @@ type expr =
 
 and stmt =
   | FunctionDef of string * expr list * expr (* name, params, body *)
-  | Assign of string * expr 
+  | Assign of string * expr * pos
 
 type prog = stmt list
 
@@ -86,7 +88,7 @@ let rec string_of_expr = function
   | ListCompFilter (e, f, s, l) -> "ListCompFilter(" ^ string_of_expr e ^ ", " ^ string_of_expr f ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"
     
 let string_of_stmt = function
-    | Assign (x, s) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")"
+    | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ") L:" ^ string_of_int p.line
     | FunctionDef (x, e1, e2) -> 
     "FunctionDef(" ^ x ^ ", " ^ string_of_expr (ExprList e1) ^ ", " ^ string_of_expr e2 ^ ")"
   

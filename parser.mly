@@ -1,5 +1,9 @@
 %{
 open Ast
+
+let mkpos (startpos : Lexing.position) = 
+  { line = startpos.pos_lnum; col = startpos.pos_cnum - startpos.pos_bol }
+
 %}
 
 %token <string> IDENT
@@ -50,10 +54,10 @@ newlines:
 
 stmt:
   | id = IDENT EQUAL e = expr
-    { Assign (id, e) }
+    { Assign (id, e, mkpos $startpos) }
   | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN EQUAL e3 = expr 
     { FunctionDef(name, e2, e3) }
-  | e = expr { Assign ("_", e) }
+  | e = expr { Assign ("_" ^ (string_of_int (mkpos $startpos).line), e, mkpos $startpos) }
 
 expr:
   | i = INTEGER { Integer i }

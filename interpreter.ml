@@ -52,22 +52,11 @@ let rec pow a = function
     let b = pow a (n / 2) in
     b * b * (if n mod 2 = 0 then 1 else a)
 
-(* TODO: make this var a bit less isolated. this should work on a per-prog parsing basis but even test files would increase this counter! *)
-let wildcard_count = ref 0 
-
 let rec parse_prog (p : prog) (env : environment) =
   match List.nth_opt p 0 with
   | Some e -> ( 
     match e with 
-    | Assign (x, e) -> 
-      let x = 
-        if x = Sgl_consts.wildcard_var_symbol then (
-          let wildcard_num = string_of_int !wildcard_count in
-          wildcard_count := 1 + !wildcard_count;
-          Sgl_consts.wildcard_var_symbol ^ wildcard_num
-        )
-        else x
-      in
+    | Assign (x, e, assign_pos) -> 
       parse_prog (List.tl p) ((x, parse_expr e env) :: env)
     | FunctionDef (name, params, body) -> 
       parse_prog (List.tl p) ((name, Fn (params, body)) :: env)
