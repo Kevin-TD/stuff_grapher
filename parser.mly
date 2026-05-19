@@ -53,6 +53,7 @@ stmt:
     { Assign (id, e) }
   | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN EQUAL e3 = expr 
     { FunctionDef(name, e2, e3) }
+  | e = expr { Assign ("_", e) }
 
 expr:
   | i = INTEGER { Integer i }

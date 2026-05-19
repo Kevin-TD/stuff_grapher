@@ -52,11 +52,21 @@ let rec pow a = function
     let b = pow a (n / 2) in
     b * b * (if n mod 2 = 0 then 1 else a)
 
-let rec parse_prog (p : prog) (env : environment) = 
+let wildcard_count = ref 0 
+
+let rec parse_prog (p : prog) (env : environment) =
   match List.nth_opt p 0 with
   | Some e -> ( 
     match e with 
     | Assign (x, e) -> 
+      let x = 
+        if x = Sgl_consts.wildcard_var_symbol then (
+          let wildcard_num = string_of_int !wildcard_count in
+          wildcard_count := 1 + !wildcard_count;
+          Sgl_consts.wildcard_var_symbol ^ wildcard_num
+        )
+        else x
+      in
       parse_prog (List.tl p) ((x, parse_expr e env) :: env)
     | FunctionDef (name, params, body) -> 
       parse_prog (List.tl p) ((name, Fn (params, body)) :: env)
@@ -263,7 +273,9 @@ and parse_expr (ex : expr) (env : environment) =
         ) 
         in ExprList l_res
     )
-    | _ -> failwith "just wait"
+    | Unresolved _ -> Unresolved t
+    | UndefinedError err -> UndefinedError (t :: err)
+    | _ -> UndefinedError [t]
   ) 
   | ListCompFilter (e, filter, var_name, l) as t -> (match parse_expr l env with
     | ExprList l -> (
@@ -277,14 +289,18 @@ and parse_expr (ex : expr) (env : environment) =
           match (parse_expr filter i_res_env) with
             | True -> Some i_res
             | False -> None
-            | _ -> failwith "just wait (2)"
+            | Unresolved _ as u -> Some u
+            | UndefinedError _ as err -> Some err
+            | _ as eval -> Some (UndefinedError [eval])
         )
         in 
         let l_res = List.filter (fun e -> e <> None) l_res in
-        let l_res = List.map (fun e -> match e with Some e -> e | _ -> failwith "impossible. better error later") l_res in
+        let l_res = List.map (fun e -> match e with Some e -> e | _ -> failwith "filtering somehow did not exclude all Nones") l_res in
         ExprList l_res
     )
-    | _ -> failwith "just wait"
+    | Unresolved _ -> Unresolved t
+    | UndefinedError err -> UndefinedError (t :: err)
+    | _ -> UndefinedError [t]
   ) 
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
@@ -304,6 +320,9 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
     List.fold_left (fun acc x -> acc @ find_unresolved x env) [] l
   | FunctionCall (_, l) -> 
     find_unresolved (ExprList l) env
+  | ListComp (e, _, l) -> find_unresolved e env @ find_unresolved l env
+  | ListCompFilter (e, f, _, l) -> 
+    find_unresolved e env @ find_unresolved f env @ find_unresolved l env
 
 let rec resolve_all (env : environment) (idx : int) = 
   match List.nth_opt env idx with
