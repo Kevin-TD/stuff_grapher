@@ -18,6 +18,8 @@ rule token = parse
   | '(' { LEFT_PAREN }
   | ')' { RIGHT_PAREN }
   | ',' { COMMA }
+  | '|' { PIPE }
+  | ':' { COLON }
   | "==" { COMPARE }
   | "!=" { NOT_EQUAL }
   | '<' { LT }

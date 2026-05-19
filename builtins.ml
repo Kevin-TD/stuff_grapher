@@ -46,6 +46,16 @@ let extern_functions = [
         | Integer x, Integer y -> Integer (modulo x y)
         | _ -> UndefinedError args
     ));
+    ("Range", ExternFn (2, fun args ->
+        let range_begin = List.nth args 0 in
+        let range_end = List.nth args 1 in
+        match range_begin, range_end with
+        | Integer x, Integer y -> (
+            let l = List.init (y - x + 1) (fun i -> Integer (x + i)) in
+            ExprList l
+        )
+        | _ -> UndefinedError args
+    ))
 ]
 
 let env = constants @ extern_functions

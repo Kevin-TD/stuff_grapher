@@ -19,6 +19,9 @@ type expr =
   | FunctionCall of string * expr list (* name, args *)
   | Fn of expr list * expr (* unnamed function that just has params and body *)
   | IndexOf of expr * expr (* list type, numerical index (0 indexed) *)
+  | ListCompFilter of expr * expr * string * expr
+  | ListComp of expr * string * expr
+  (* output, optional filter, var to assign list *)
 
   (* non-typeable: the user cannot create instances of these exprs but they are nonetheless
   used internally. 
@@ -79,6 +82,8 @@ let rec string_of_expr = function
   | FunctionCallError (msg, e) -> 
     "FunctionCallError(" ^ msg ^ ", " ^ string_of_expr e ^ ")"
   | ExternFn (arity, _) -> "ExternFn(" ^ string_of_int arity ^ ", ...)"
+  | ListComp (e, s, l) -> "ListComp(" ^ string_of_expr e ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"
+  | ListCompFilter (e, f, s, l) -> "ListCompFilter(" ^ string_of_expr e ^ ", " ^ string_of_expr f ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"
     
 let string_of_stmt = function
     | Assign (x, s) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")"

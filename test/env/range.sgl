@@ -1,0 +1,4 @@
+x = Range(1, 10)
+y = Range(-5, 10)
+z = Range(1, 1)
+z1 = Range(2, 1)

@@ -17,14 +17,17 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: better errors *)
 (* TODO: document sgl *)
 (* TODO: pass error emission log *)
-(* TODO: more efficient resolve_all? *)
 (* TODO: more desmos math functions like trig, sigma notation, integrals? *)
 (* TODO: error if infinite loop *)
 (* TODO: improve parse error log + unify env, error, pass test + more rigorous, consistent testing for
 pass + error *)
 (* TODO: rename parse_expr to eval_expr? *)
-(* TODO: list comprehension/mapping/filtering in sgl *)
 (* TODO: when building frontend, inverse trig functions should have sugar of sin^-1 and what not *)
+(* TODO: fix resolve all so that we dont need both lookup_full and lookup *)
+(* TODO: List comprehension *)
+(* TODO: sigma notation *)
+(* TODO: allow exprs to be eval w/o assignment to a name *)
+(* TODO: make it so builtins are not printed every time ! *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
@@ -249,6 +252,40 @@ and parse_expr (ex : expr) (env : environment) =
     )
     | _ -> UndefinedError [t]
   )
+  | ListComp (e, var_name, l) as t -> (match parse_expr l env with
+    | ExprList l -> (
+      let l_res = 
+        List.init (List.length l) 
+        (fun idx ->
+          let cur_iter = List.nth l idx in
+          let list_comp_env = (var_name, cur_iter) :: env in
+          parse_expr e list_comp_env
+        ) 
+        in ExprList l_res
+    )
+    | _ -> failwith "just wait"
+  ) 
+  | ListCompFilter (e, filter, var_name, l) as t -> (match parse_expr l env with
+    | ExprList l -> (
+      let l_res = 
+        List.init (List.length l) 
+        (fun idx ->
+          let cur_iter = List.nth l idx in
+          let list_comp_env = (var_name, cur_iter) :: env in
+          let i_res = parse_expr e list_comp_env in
+          let i_res_env = (var_name, i_res) :: env in
+          match (parse_expr filter i_res_env) with
+            | True -> Some i_res
+            | False -> None
+            | _ -> failwith "just wait (2)"
+        )
+        in 
+        let l_res = List.filter (fun e -> e <> None) l_res in
+        let l_res = List.map (fun e -> match e with Some e -> e | _ -> failwith "impossible. better error later") l_res in
+        ExprList l_res
+    )
+    | _ -> failwith "just wait"
+  ) 
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
