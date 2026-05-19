@@ -4,9 +4,9 @@ open Parser
 
 rule token = parse
   | [' ' '\t']          { token lexbuf }
-  | '#' [^ '\n']* '\n'  { token lexbuf }   (* full comment line *)
-  | '#' [^ '\n']* eof   { token lexbuf }  (* comment at end of file *)
-  | '\n' { NEWLINE }
+| '#' [^ '\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }  (* ← add this *)
+| '#' [^ '\n']* eof   { token lexbuf }
+| '\n'                { Lexing.new_line lexbuf; NEWLINE }        (* ← add this *)
   | '=' { EQUAL }
   | '+' { PLUS }
   | '-' { MINUS }
@@ -38,4 +38,5 @@ rule token = parse
   | ['A'-'Z' 'a'-'z' '_'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
    { IDENT id }
   | eof { EOF }
-  | _ { failwith "unexpected char" }
+  | _ { failwith (Printf.sprintf "unexpected char at line %d"
+        lexbuf.Lexing.lex_curr_p.Lexing.pos_lnum) }  (* ← useful to have line here *)

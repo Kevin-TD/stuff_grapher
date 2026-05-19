@@ -372,18 +372,26 @@ let rec resolve_all (env : environment) (idx : int) =
 let parse_file filename emit_output =
     let inx = open_in filename in
     let lexbuf = Lexing.from_channel inx in
+    lexbuf.Lexing.lex_curr_p <- { lexbuf.Lexing.lex_curr_p with
+      Lexing.pos_fname = filename
+    };
     let res =
-        try Parser.main Lexer.token lexbuf
-        with 
-        | Parser.Error -> (
-          failwith ("parse error")
-        )
-        | Failure msg -> failwith ("lex error: " ^ msg)
-    in 
+      try Parser.main Lexer.token lexbuf
+      with
+      | Parser.Error ->
+          let pos = lexbuf.Lexing.lex_curr_p in
+          let line = pos.Lexing.pos_lnum in
+          let col  = pos.Lexing.pos_cnum - pos.Lexing.pos_bol in
+          failwith (Printf.sprintf "%s:%d:%d: parse error" filename line col)
+      | Failure msg ->
+          let pos = lexbuf.Lexing.lex_curr_p in
+          let line = pos.Lexing.pos_lnum in
+          let col  = pos.Lexing.pos_cnum - pos.Lexing.pos_bol in
+          failwith (Printf.sprintf "%s:%d:%d: lex error: %s" filename line col msg)
+    in
     if emit_output then print_prog res;
     let env = List.rev (parse_prog res Builtins.env) in
     let env = resolve_all env 0 in
     if emit_output then List.iter (fun (x, e) -> print_endline (x ^ ": " ^ string_of_expr e)) env;
     run_passes env;
-    
     (res, env)
