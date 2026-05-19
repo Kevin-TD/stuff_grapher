@@ -3,10 +3,10 @@ open Parser
 }
 
 rule token = parse
-  | [' ' '\t']          { token lexbuf }
-| '#' [^ '\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }  (* ← add this *)
+  | [' ' '\t'] { token lexbuf }
+| '#' [^ '\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }
 | '#' [^ '\n']* eof   { token lexbuf }
-| '\n'                { Lexing.new_line lexbuf; NEWLINE }        (* ← add this *)
+| '\n' { Lexing.new_line lexbuf; NEWLINE }
   | '=' { EQUAL }
   | '+' { PLUS }
   | '-' { MINUS }
@@ -39,4 +39,4 @@ rule token = parse
    { IDENT id }
   | eof { EOF }
   | _ { failwith (Printf.sprintf "unexpected char at line %d"
-        lexbuf.Lexing.lex_curr_p.Lexing.pos_lnum) }  (* ← useful to have line here *)
+        lexbuf.Lexing.lex_curr_p.Lexing.pos_lnum) }
