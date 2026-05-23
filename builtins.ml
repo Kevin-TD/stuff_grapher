@@ -3,11 +3,6 @@ open Ast
 let e_const = 2.71828182846 
 let pi_const = 3.14159265359 
 
-let constants = [
-    ("e", Real e_const);
-    ("pi", Real pi_const);
-]
-
 let real_arity1_extern (fn : float -> float) (args : expr list)  =
     let n = List.nth args 0 in 
     match n with
@@ -19,6 +14,11 @@ let modulo x y =
   let result = x mod y in
   if result >= 0 then result
   else result + y
+
+let constants = [
+    ("e", Real e_const);
+    ("pi", Real pi_const);
+]
 
 let extern_functions = [
     ("sqrt", ExternFn (1, real_arity1_extern sqrt));

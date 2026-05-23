@@ -23,7 +23,6 @@ type expr =
   | IndexOf of expr * expr (* list type, numerical index (0 indexed) *)
   | ListCompFilter of expr * expr * string * expr
   | ListComp of expr * string * expr
-  (* output, optional filter, var to assign list *)
 
   (* non-typeable: the user cannot create instances of these exprs but they are nonetheless
   used internally. 
@@ -88,7 +87,7 @@ let rec string_of_expr = function
   | ListCompFilter (e, f, s, l) -> "ListCompFilter(" ^ string_of_expr e ^ ", " ^ string_of_expr f ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"
     
 let string_of_stmt = function
-    | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ") L:" ^ string_of_int p.line
+    | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")" 
     | FunctionDef (x, e1, e2) -> 
     "FunctionDef(" ^ x ^ ", " ^ string_of_expr (ExprList e1) ^ ", " ^ string_of_expr e2 ^ ")"
   
