@@ -357,9 +357,13 @@ let rec resolve_all (env : environment) (idx : int) =
   )
   | None -> env
 
-let parse_file filename emit_output =
-    let inx = open_in filename in
-    let lexbuf = Lexing.from_channel inx in
+type filename_or_string = FileName of string | String of string
+
+let parse_input file_or_str emit_output =
+    let (filename, lexbuf) = match file_or_str with
+      | FileName s -> s, Lexing.from_channel (open_in s) 
+      | String s -> "NA", Lexing.from_string s
+    in
     lexbuf.Lexing.lex_curr_p <- { lexbuf.Lexing.lex_curr_p with
       Lexing.pos_fname = filename
     };

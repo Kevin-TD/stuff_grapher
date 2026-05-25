@@ -4,5 +4,5 @@ let _ =
     let test_specified = Sys.argv.(1) in
     let test_file = Sys.argv.(2) in
     let filename = "test/" ^ test_specified ^ "/" ^ test_file ^ Config.file_ext in
-    let _ = Interpreter.parse_file filename Config.emit_output in 
+    let _ = Interpreter.parse_input (FileName filename) Config.emit_output in 
     ()
