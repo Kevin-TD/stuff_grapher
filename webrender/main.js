@@ -34,7 +34,7 @@ function createBlock(index, focusIt = true) {
   }
 
   const mqField = MQ.MathField(mqSpan, {
-    autoOperatorNames: "sin cos if then else for when Range",
+    autoOperatorNames: "sin cos if then else for when range",
     autoCommands: "pi theta sqrt sum int",
     autoSubscriptNumerals: true,
     sumStartsWithNEquals: true,
@@ -55,7 +55,7 @@ function createBlock(index, focusIt = true) {
   });
   
   
-  // mqField.write("=")
+  mqField.write("[i when i = z for i \\leftarrow range(1, 20)]")
 
   blocks[index] = mqField;
 
@@ -118,13 +118,15 @@ function getCode() {
     for (let block of blocks) {
         let rawLatex = block.latex()
         let parseableEq = rawLatex
-            .replaceAll("\\left(", "(")
-            .replaceAll("\\right)", ")")
-            .replaceAll("\\left[", "[")
-            .replaceAll("\\right]", "]")
-            .replace(/operatorname{(.*?)}/g, " $1 ")
+            .replace(/\\left\(/g, "(")
+            .replace(/\\right\)/g, ")")
+            .replace(/\\left\[/g, "[")
+            .replace(/\\right\]/g, "]")
+            .replace(/\\quad/g, " ")
+            .replace(/\\operatorname{(.*?)}/g, " $1 ")
             .replace("\\cdot", "*")
-            .replace("\\ne", "!=")
+            .replace("\\ne", " != ")
+            .replace("\\leftarrow", " <- ")
 
         codes.push(parseableEq)
     }

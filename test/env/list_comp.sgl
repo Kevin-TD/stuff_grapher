@@ -1,7 +1,7 @@
 z = 10
-[i + 5 : i = Range(1, 10)]
-[i + z : i = Range(1, 10)]
-[i | i < 5 : i = Range(1, 100)]
-[i | i == z : i = Range(1, 10)]
-[i | mod(i, 2) == 0 : i = Range(1, 10)]
-[2 * i : i = Range(0, 10)]
+[i + 5 for i <- Range(1, 10)]
+[i + z for i <- Range(1, 10)]
+[i when i < 5 for i <- Range(1, 100)]
+[i when i = z for i <- Range(1, 10)]
+[i when mod(i, 2) = 0 for i <- Range(1, 10)]
+[2 * i for i <- Range(0, 10)]

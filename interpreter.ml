@@ -26,7 +26,7 @@ pass + error *)
 (* TODO: add factorial builtin *)
 (* TODO: random funcs *)
 
-(* TODO: change list comp to use "when" and "for" *)
+(* TODO: make sure all files in env are tested. maybe emit error if exists a file w/o a test written *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 

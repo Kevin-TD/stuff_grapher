@@ -18,7 +18,6 @@ rule token = parse
   | '(' { LEFT_PAREN }
   | ')' { RIGHT_PAREN }
   | ',' { COMMA }
-  | '|' { PIPE }
   | ':' { COLON }
   | "==" { COMPARE }
   | "!=" { NOT_EQUAL }
@@ -30,6 +29,8 @@ rule token = parse
   | "then" { THEN }
   | "else" { ELSE }
   | "fun" { FUN }
+  | "when" { WHEN }
+  | "for" { FOR }
   | "->" { ARROW }
   | "<-" { ASSIGN_ARROW }
   | ['+' '-']? ['0'-'9']* as i
