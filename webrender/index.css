@@ -1,0 +1,87 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #fff;
+  color: #000;
+  font-family: sans-serif;
+  padding: 1.5rem;
+}
+
+.add-btn {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.75rem;
+  background: #fff;
+  border: 1px solid #999;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.add-btn:hover { background: #f0f0f0; }
+
+.block-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.math-block {
+  display: flex;
+  align-items: stretch;
+  width: 50%;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.block-num {
+  background: #3a7fd5;
+  color: #fff;
+  font-size: 0.75rem;
+  width: 2rem;
+  min-width: 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.mq-wrap {
+  flex: 1;
+  position: relative;
+  cursor: text;
+  padding: 0.5rem 0.5rem 1.6rem 0.5rem;
+  background: #fff;
+  min-height: 3.5rem;
+}
+
+.mq-editable-field {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: #000 !important;
+  font-size: 1rem !important;
+  width: 100%;
+  outline: none !important;
+}
+
+.mq-editable-field.mq-focused {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.block-result {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #f0f0f0;
+  color: #333;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-radius: 3px 0 0 0;
+}
