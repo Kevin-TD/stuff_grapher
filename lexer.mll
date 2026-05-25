@@ -31,6 +31,7 @@ rule token = parse
   | "else" { ELSE }
   | "fun" { FUN }
   | "->" { ARROW }
+  | "<-" { ASSIGN_ARROW }
   | ['+' '-']? ['0'-'9']* as i
     { INTEGER (int_of_string i) }
   | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as r

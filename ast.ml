@@ -23,7 +23,6 @@ type expr =
   | IndexOf of expr * expr (* list type, numerical index (0 indexed) *)
   | ListCompFilter of expr * expr * string * expr
   | ListComp of expr * string * expr
-
   (* non-typeable: the user cannot create instances of these exprs but they are nonetheless
   used internally. 
   note: a user can reference an ExternFn by its name (e.g., "sqrt") but cannot create a value of that type. *)

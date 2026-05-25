@@ -1,13 +1,13 @@
-x = 5 == 5
+x = 5 = 5
 y = 1
-z1 = 1 == y
-z2 = e2 == e2
+z1 = 1 = y
+z2 = e2 = e2
 z3 = e2 != e2
 e2 = 1
 h = 1 > 1
 i1 = if 1 > 2 then 5 else 6
 i2 = if 1 < 2 then 5 else 6
-k_func(k) = if k == 1 then 2 else if k == 2 then 3 else if k == 3 then 4 else 5 
+k_func(k) = if k = 1 then 2 else if k = 2 then 3 else if k = 3 then 4 else 5 
 k1 = k_func(1)
 k2 = k_func(2)
 k3 = k_func(3)

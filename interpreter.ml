@@ -24,6 +24,9 @@ pass + error *)
 (* TODO: fix resolve all so that we dont need both lookup_full and lookup *)
 (* TODO: sigma notation *)
 (* TODO: add factorial builtin *)
+(* TODO: random funcs *)
+
+(* TODO: change list comp to use "when" and "for" *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 

@@ -1,7 +1,8 @@
-const MQ = MathQuill.getInterface(2);
-const list = document.getElementById('block-list');
-const addBtn = document.getElementById('add-btn');
-let blocks = [];
+const MQ = MathQuill.getInterface(2)
+const list = document.getElementById('block-list')
+const addBtn = document.getElementById('add-btn')
+let blocks = []
+let lastKey = null
 
 function createBlock(index, focusIt = true) {
   const blockEl = document.createElement('div');
@@ -52,8 +53,9 @@ function createBlock(index, focusIt = true) {
       }
     }
   });
-
-  mqField.write("[i | i == z : i = Range(1, 20)])")
+  
+  
+  // mqField.write("=")
 
   blocks[index] = mqField;
 
@@ -74,6 +76,17 @@ function createBlock(index, focusIt = true) {
       const i = getIndex(blockEl);
       if (i < blocks.length - 1) { e.preventDefault(); focusBlock(i + 1); }
     }
+    if (e.key === '=' && lastKey === '!') {
+      e.preventDefault();
+      mqField.keystroke('Backspace');
+      mqField.write('\\ne');
+    }
+    if (e.key === "-" && lastKey === "<") {
+      e.preventDefault();
+      mqField.keystroke('Backspace');
+      mqField.write('\\quad\\leftarrow\\quad');
+    }
+    lastKey = e.key;
   });
 
   mqWrap.addEventListener('click', () => mqField.focus());
@@ -111,7 +124,7 @@ function getCode() {
             .replaceAll("\\right]", "]")
             .replace(/operatorname{(.*?)}/g, " $1 ")
             .replace("\\cdot", "*")
-            .replaceAll("\\", "")
+            .replace("\\ne", "!=")
 
         codes.push(parseableEq)
     }
