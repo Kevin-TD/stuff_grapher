@@ -28,6 +28,7 @@ let mkpos (startpos : Lexing.position) =
 %token FUN ARROW
 %token PIPE COLON
 %token WHEN FOR
+%token LET IN
 
 %left PLUS MINUS
 %left MULT DIV
@@ -87,6 +88,8 @@ expr:
   { ListComp (output, id, l) }
   | LEFT_SQR_BRACKET output = expr WHEN cond = expr FOR id = IDENT EQUAL l = expr RIGHT_SQR_BRACKET
   { ListCompFilter (output, cond, id, l) }
+  | LET id = IDENT EQUAL e1 = expr IN e2 = expr 
+  { LetIn (id, e1, e2) }
 
 expr_list_elems:
   | /* empty */ { [] }

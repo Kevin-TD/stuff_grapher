@@ -173,6 +173,17 @@ let tests = [
         env_to_satisfy = [
             ("r", "r != 5", fun e -> e = Integer 5)
         ]
+    };
+    {
+        name = "let_in";
+        env_to_satisfy = [
+            ("x", "x != 6", fun e -> e = Integer 6);
+            ("a1", "a1 != 6", fun e -> e = Integer 6);
+            ("a2", "a2 != 7", fun e -> e = Integer 7);
+            ("a3", "a3 != 3", fun e -> e = Integer 3);
+            ("a4", "a4 != 1", fun e -> e = Integer 1);
+            ("a5", "a5 != 0", fun e -> e = Integer 0);
+        ]
     }
 ]
 

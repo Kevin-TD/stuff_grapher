@@ -23,6 +23,7 @@ type expr =
   | IndexOf of expr * expr (* list type, numerical index (0 indexed) *)
   | ListCompFilter of expr * expr * string * expr
   | ListComp of expr * string * expr
+  | LetIn of string * expr * expr
   (* non-typeable: the user cannot create instances of these exprs but they are nonetheless
   used internally. 
   note: a user can reference an ExternFn by its name (e.g., "sqrt") but cannot create a value of that type. *)
@@ -84,9 +85,10 @@ let rec string_of_expr = function
   | ExternFn (arity, _) -> "ExternFn(" ^ string_of_int arity ^ ", ...)"
   | ListComp (e, s, l) -> "ListComp(" ^ string_of_expr e ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"
   | ListCompFilter (e, f, s, l) -> "ListCompFilter(" ^ string_of_expr e ^ ", " ^ string_of_expr f ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"
+  | LetIn (s, e1, e2) -> "LetIn(" ^ s ^ ", " ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
     
 let string_of_stmt = function
-    | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")" 
+    | Assign (x, s, _) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")" 
     | FunctionDef (x, e1, e2) -> 
     "FunctionDef(" ^ x ^ ", " ^ string_of_expr (ExprList e1) ^ ", " ^ string_of_expr e2 ^ ")"
   

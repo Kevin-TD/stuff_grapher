@@ -30,6 +30,8 @@ rule token = parse
   | "fun" { FUN }
   | "when" { WHEN }
   | "for" { FOR }
+  | "let" { LET }
+  | "in" { IN }
   | "->" { ARROW }
   | ['+' '-']? ['0'-'9']* as i
     { INTEGER (int_of_string i) }

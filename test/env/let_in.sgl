@@ -1,0 +1,9 @@
+y = 4
+x = let y = 5 in y + 1
+f1(x) = if x > 1 then let x2 = 5 in x + x2 else let x2 = 7 in x + x2
+a1 = f1(-1)
+a2 = f1(2)
+a3 = let x1 = 1 in let x2 = 2 in x1 + x2
+a4 = let x = 1 in x + b
+a5 = let x = b in x
+b = 0

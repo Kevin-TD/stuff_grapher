@@ -309,7 +309,20 @@ and parse_expr (ex : expr) (env : environment) =
     | Unresolved _ -> Unresolved t
     | UndefinedError err -> UndefinedError (t :: err)
     | _ -> UndefinedError [t]
-  ) 
+  )
+  | LetIn (s, e1, e2) as t -> (
+    let e1' = parse_expr e1 env in
+    match e1' with
+    | Unresolved _ -> Unresolved t
+    | UndefinedError err -> UndefinedError (t :: err)
+    | _ -> (
+      let let_env = (s, e1') :: env in
+      match parse_expr e2 let_env with
+      | Unresolved _ -> Unresolved t
+      | UndefinedError err -> UndefinedError (t :: err)
+      | _ as res -> res
+    )
+  )
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
@@ -335,9 +348,10 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
     res
   | ListCompFilter (e, f, var_name, l) ->
     let res = find_unresolved e env @ find_unresolved f env @ find_unresolved l env in
-    let res = List.sort_uniq String.compare res in
     let res = List.filter (fun s -> not (s = var_name)) res in
     res
+  | LetIn (_, e1, e2) -> 
+    find_unresolved e1 env @ find_unresolved e2 env
 
 let rec resolve_all (env : environment) (idx : int) = 
   match List.nth_opt env idx with
