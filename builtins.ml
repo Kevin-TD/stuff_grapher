@@ -55,7 +55,49 @@ let extern_functions = [
             ExprList l
         )
         | _ -> UndefinedError args
-    ))
+    ));
+    ("randint", ExternFn (2, fun args ->
+        let min_int_arg = List.nth args 0 in
+        let max_int_arg = List.nth args 1 in
+        Random.self_init ();
+        match min_int_arg, max_int_arg with
+        | Integer x, Integer y -> (
+            if x > y then
+                UndefinedError args
+            else
+                Integer (Random.int_in_range ~min:x ~max:y)
+        )
+        | _ -> UndefinedError args
+    ));
+    ("rand", ExternFn (2, fun args ->
+        let min_int_arg = List.nth args 0 in
+        let max_int_arg = List.nth args 1 in
+        Random.self_init ();
+        let rand_range x y = 
+            if x > y then
+                UndefinedError args
+            else
+                Real (x +. (y -. x) *. Random.float 1.) 
+        in
+        match min_int_arg, max_int_arg with
+        | Integer x, Integer y -> (
+            let x = float_of_int x in
+            let y = float_of_int y in
+            rand_range x y
+        )
+        | Integer x, Real y -> (
+            let x = float_of_int x in
+            rand_range x y
+        )
+        | Real x, Integer y -> (
+            let y = float_of_int y in
+            rand_range x y
+        )
+        | Real x, Real y -> (
+            rand_range x y
+        )
+        | _ -> UndefinedError args
+    ));
 ]
 let env = constants @ extern_functions
 let taken_names = List.map (fun (x, _) -> x) env
