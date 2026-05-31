@@ -27,6 +27,8 @@ pass + error *)
 (* TODO: random funcs *)
 
 (* TODO: make sure all files in env are tested. maybe emit error if exists a file w/o a test written *)
+(* TODO: change "Range" to "range" *)
+(* TODO: let in exprs *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 

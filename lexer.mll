@@ -4,9 +4,9 @@ open Parser
 
 rule token = parse
   | [' ' '\t'] { token lexbuf }
-| '#' [^ '\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }
-| '#' [^ '\n']* eof   { token lexbuf }
-| '\n' { Lexing.new_line lexbuf; NEWLINE }
+  | '#' [^ '\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }
+  | '#' [^ '\n']* eof   { token lexbuf }
+  | '\n' { Lexing.new_line lexbuf; NEWLINE }
   | '=' { EQUAL }
   | '+' { PLUS }
   | '-' { MINUS }
