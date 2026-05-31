@@ -1,7 +1,7 @@
 z = 10
-a1 = [i + 5 for i <- Range(1, 10)]
-a2 = [i + z for i <- Range(1, 10)]
-a3 = [i when i < 5 for i <- Range(1, 100)]
-a4 = [i when i = z for i <- Range(1, 10)]
-a5 = [i when mod(i, 2) = 0 for i <- Range(1, 10)]
-a6 = [2 * i for i <- Range(0, 10)]
+a1 = [i + 5 for i = Range(1, 10)]
+a2 = [i + z for i = Range(1, 10)]
+a3 = [i when i < 5 for i = Range(1, 100)]
+a4 = [i when i = z for i = Range(1, 10)]
+a5 = [i when mod(i, 2) = 0 for i = Range(1, 10)]
+a6 = [2 * i for i = Range(0, 10)]

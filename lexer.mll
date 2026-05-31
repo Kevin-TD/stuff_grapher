@@ -19,7 +19,6 @@ rule token = parse
   | ')' { RIGHT_PAREN }
   | ',' { COMMA }
   | ':' { COLON }
-  | "==" { COMPARE }
   | "!=" { NOT_EQUAL }
   | '<' { LT }
   | "<=" { LTE }
@@ -32,7 +31,6 @@ rule token = parse
   | "when" { WHEN }
   | "for" { FOR }
   | "->" { ARROW }
-  | "<-" { ASSIGN_ARROW }
   | ['+' '-']? ['0'-'9']* as i
     { INTEGER (int_of_string i) }
   | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as r

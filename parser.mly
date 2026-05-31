@@ -23,12 +23,10 @@ let mkpos (startpos : Lexing.position) =
 %token LEFT_PAREN 
 %token RIGHT_PAREN
 %token IF THEN ELSE
-%token COMPARE
 %token LT LTE GT GTE
 %token NOT_EQUAL
 %token FUN ARROW
 %token PIPE COLON
-%token ASSIGN_ARROW
 %token WHEN FOR
 
 %left PLUS MINUS
@@ -85,9 +83,9 @@ expr:
   | FUN LEFT_PAREN params = expr_list_elems RIGHT_PAREN ARROW body = expr
     { Fn (params, body) }
   | e = expr LEFT_SQR_BRACKET idx = expr RIGHT_SQR_BRACKET { IndexOf(e, idx)}
-  | LEFT_SQR_BRACKET output = expr FOR id = IDENT ASSIGN_ARROW l = expr RIGHT_SQR_BRACKET
+  | LEFT_SQR_BRACKET output = expr FOR id = IDENT EQUAL l = expr RIGHT_SQR_BRACKET
   { ListComp (output, id, l) }
-  | LEFT_SQR_BRACKET output = expr WHEN cond = expr FOR id = IDENT ASSIGN_ARROW l = expr RIGHT_SQR_BRACKET
+  | LEFT_SQR_BRACKET output = expr WHEN cond = expr FOR id = IDENT EQUAL l = expr RIGHT_SQR_BRACKET
   { ListCompFilter (output, cond, id, l) }
 
 expr_list_elems:
