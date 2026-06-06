@@ -1,2 +1,3 @@
 _build
 graphtests
+test/env/playground.sgl

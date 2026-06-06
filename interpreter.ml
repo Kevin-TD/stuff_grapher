@@ -339,8 +339,8 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
   | Neg e -> find_unresolved e env
   | ExprList l -> 
     List.fold_left (fun acc x -> acc @ find_unresolved x env) [] l
-  | FunctionCall (_, l) -> 
-    find_unresolved (ExprList l) env
+  | FunctionCall (s, l) -> 
+    find_unresolved (Ident s) env @ find_unresolved (ExprList l) env
   | ListComp (e, var_name, l) ->
     let res = find_unresolved e env @ find_unresolved l env in
     let res = List.sort_uniq String.compare res in
