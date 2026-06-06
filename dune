@@ -1,7 +1,20 @@
 (ocamllex lexer)
-
 (menhir (modules parser))
+
+(library
+  (name sgl)
+  (wrapped false)
+  (modules parser lexer ast builtins config interpreter passes sgl_consts test_suite))
 
 (executable
   (name main)
-  (libraries))
+  (modules main)
+  (libraries sgl)
+  (modes native))
+
+(executable
+  (name js_main)
+  (modules js_main)
+  (libraries sgl js_of_ocaml)
+  (preprocess (pps js_of_ocaml-ppx))
+  (modes js))

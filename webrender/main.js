@@ -91,6 +91,8 @@ function createBlock(index, focusIt = true) {
 
   mqSpan.addEventListener('keyup', (e) => {
     console.log(getCode())
+    let f = SGL.parseStringInput(getCode())
+    console.log(f)
   })
 
   mqWrap.addEventListener('click', () => mqField.focus());
@@ -148,3 +150,11 @@ let board = JXG.JSXGraph.initBoard(
         boundingbox: [-10, 10, 10, -10],
         axis: true
     })
+
+let sampleCode = `a = 10
+9 + 10
+a + 10`
+
+let sampleOutput = SGL.parseStringInput(sampleCode)
+
+console.log(sampleOutput)

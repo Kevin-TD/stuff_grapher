@@ -234,7 +234,7 @@ and parse_expr (ex : expr) (env : environment) =
     | _ -> UndefinedError [e]
   )
   | ExprList l -> 
-    (** i will decide for now that an UndefinedError in one of the elements will NOT
+    (* i will decide for now that an UndefinedError in one of the elements will NOT
      make the entire list an UndefinedError *)
     ExprList (List.map (fun e -> parse_expr e env) l)
   | IndexOf (e, idx) as t -> (match parse_expr e env, parse_expr idx env with
