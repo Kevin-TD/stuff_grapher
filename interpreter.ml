@@ -22,7 +22,6 @@ pass + error *)
 (* TODO: rename parse_expr to eval_expr? *)
 (* TODO: when building frontend, inverse trig functions should have sugar of sin^-1 and what not *)
 (* TODO: fix resolve all so that we dont need both lookup_full and lookup *)
-(* TODO: sigma notation *)
 (* TODO: add factorial builtin *)
 (* TODO: random funcs *)
 
@@ -30,6 +29,9 @@ pass + error *)
 (* TODO: change "Range" to "range" *)
 (* TODO: increase precision of nums? *)
 (* TODO: improve errors for when externfn calls error  *)
+(* TODO: points *)
+(* TODO: sigma/sum, products *)
+(* TODO: integrals, derivatives *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 

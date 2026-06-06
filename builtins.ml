@@ -46,7 +46,7 @@ let extern_functions = [
         | Integer x, Integer y -> Integer (modulo x y)
         | _ -> UndefinedError args
     ));
-    ("Range", ExternFn (2, fun args ->
+    ("range", ExternFn (2, fun args ->
         let range_begin = List.nth args 0 in
         let range_end = List.nth args 1 in
         match range_begin, range_end with
