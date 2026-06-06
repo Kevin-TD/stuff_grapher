@@ -71,7 +71,10 @@ function createBlock(index, focusIt = true) {
     }
     if (e.key === 'ArrowDown') {
       const i = getIndex(blockEl);
-      if (i < blocks.length - 1) { e.preventDefault(); focusBlock(i + 1); }
+      if (i < blocks.length - 1) {
+        e.preventDefault()
+        focusBlock(i + 1)
+      }
     }
     if (e.key === '=' && lastKey === '!') {
       e.preventDefault();
@@ -86,10 +89,18 @@ function createBlock(index, focusIt = true) {
     lastKey = e.key;
   });
 
+  mqSpan.addEventListener('keyup', (e) => {
+    console.log(getCode())
+  })
+
   mqWrap.addEventListener('click', () => mqField.focus());
 
   updateNumbers();
-  if (focusIt) setTimeout(() => mqField.focus(), 0);
+
+  if (focusIt) {
+    setTimeout(() => mqField.focus(), 0);
+  }
+
   return mqField;
 }
 
@@ -129,5 +140,11 @@ function getCode() {
 
         codes.push(parseableEq)
     }
-    return codes
+    return codes.join("\n")
 }
+
+let board = JXG.JSXGraph.initBoard(
+    'box', {
+        boundingbox: [-10, 10, 10, -10],
+        axis: true
+    })

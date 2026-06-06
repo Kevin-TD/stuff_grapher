@@ -14,24 +14,17 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 
 (* TODO: Fn should be of string list not expr list to make it clear its params *)
 (* TODO: document sgl *)
-(* TODO: pass error emission log *)
-(* TODO: more desmos math functions like trig, sigma notation, integrals? *)
 (* TODO: error if infinite loop *)
-(* TODO: improve parse error log + unify env, error, pass test + more rigorous, consistent testing for
-pass + error *)
 (* TODO: rename parse_expr to eval_expr? *)
 (* TODO: when building frontend, inverse trig functions should have sugar of sin^-1 and what not *)
 (* TODO: fix resolve all so that we dont need both lookup_full and lookup *)
 (* TODO: add factorial builtin *)
-(* TODO: random funcs *)
-
-(* TODO: make sure all files in env are tested. maybe emit error if exists a file w/o a test written *)
-(* TODO: change "Range" to "range" *)
 (* TODO: increase precision of nums? *)
 (* TODO: improve errors for when externfn calls error  *)
 (* TODO: points *)
 (* TODO: sigma/sum, products *)
 (* TODO: integrals, derivatives *)
+(* TODO: consider removing ints and only use floats. list indexing will just floor the input *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
