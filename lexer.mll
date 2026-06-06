@@ -33,9 +33,9 @@ rule token = parse
   | "let" { LET }
   | "in" { IN }
   | "->" { ARROW }
-  | ['+' '-']? ['0'-'9']* as i
+  | ['0'-'9']+ as i
     { INTEGER (int_of_string i) }
-  | ['+' '-']? ['0'-'9']* '.'? ['0'-'9']+ as r
+  | ['0'-'9']+ '.'? ['0'-'9']+ as r
     { REAL (float_of_string r)}
   | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
    { IDENT id }

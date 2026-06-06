@@ -32,7 +32,7 @@ let mkpos (startpos : Lexing.position) =
 
 %left PLUS MINUS
 %left MULT DIV
-%right UMINUS
+%right UMINUS UPLUS
 %right EXP
 
 %start main
@@ -70,6 +70,7 @@ expr:
   | e1 = expr DIV e2 = expr { Div(e1, e2) }
   | e1 = expr EXP e2 = expr { Exp(e1, e2) } 
   | MINUS e = expr %prec UMINUS { Neg e }
+  | PLUS e = expr %prec UMINUS { e }
   | LEFT_PAREN e = expr RIGHT_PAREN { e }
   | e1 = expr EQUAL e2 = expr { Compare(e1, e2) }
   | e1 = expr NOT_EQUAL e2 = expr { NotEqual(e1, e2) }
