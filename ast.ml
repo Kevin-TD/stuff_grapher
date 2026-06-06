@@ -42,7 +42,13 @@ and stmt =
 
 type prog = stmt list
 
-type environment = (string * expr) list
+type var = {
+  name: string;
+  line: int option;
+  value: expr
+}
+
+type environment = var list
 
 let rec string_of_expr = function
   | Integer i -> "Int(" ^ string_of_int i ^ ")"
@@ -88,9 +94,16 @@ let rec string_of_expr = function
   | LetIn (s, e1, e2) -> "LetIn(" ^ s ^ ", " ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
     
 let string_of_stmt = function
-    | Assign (x, s, _) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ")" 
+    | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ", Line " ^ string_of_int p.line ^ ")" 
     | FunctionDef (x, e1, e2) -> 
     "FunctionDef(" ^ x ^ ", " ^ string_of_expr (ExprList e1) ^ ", " ^ string_of_expr e2 ^ ")"
   
+let string_of_var v = 
+  let string_of_line = function
+    | Some i -> string_of_int i
+    | None -> "None"
+  in 
+  "(" ^ v.name ^ ", " ^ string_of_line v.line ^ "): " ^ string_of_expr v.value 
+
 let print_prog (p : prog) =
   List.iter (fun e -> print_endline (string_of_stmt e)) p

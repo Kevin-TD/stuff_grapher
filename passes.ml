@@ -18,10 +18,10 @@ let no_var_redef_test : pass_test = {
         let if_error = ref [] in
         let var_counts : ((string * int ref) list) ref = ref [] in
         List.iter 
-        (fun (var_name, _) ->
-            match List.find_opt (fun (v, _) -> v = var_name) !var_counts with
+        (fun {name; line; value} ->
+            match List.find_opt (fun (v, _) -> v = name) !var_counts with
             | Some (_, c) -> c := !c + 1
-            | None -> var_counts := (var_name, ref 1) :: !var_counts 
+            | None -> var_counts := (name, ref 1) :: !var_counts 
         ) env;
         List.iter 
         (fun (var_name, count) ->
@@ -41,9 +41,10 @@ let no_unresolved_test : pass_test = {
         let unresolved_vars = ref [] in
         let if_error = ref [] in
         List.iter
-        (fun (x, e) -> match e with
-        | Unresolved _ -> unresolved_vars := x :: !unresolved_vars
-        | _ -> ())
+        (fun {name; line; value} -> match value with
+            | Unresolved _ -> unresolved_vars := name :: !unresolved_vars
+            | _ -> ()
+        )
         env;
         List.iter
         (fun x -> 

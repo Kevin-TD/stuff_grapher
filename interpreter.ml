@@ -1,5 +1,4 @@
 open Ast
-open Passes
 
 (* this is for the Stuff Grapher (SG) project and its language, 
 Stuff Grapher Language (SGL) *)
@@ -26,16 +25,21 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: integrals, derivatives *)
 (* TODO: consider removing ints and only use floats. list indexing will just floor the input *)
 
+(* TODO!: remove functiondef as a stmt. its just sugar! fix line number *)
+
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
-  match List.find_opt (fun (x, _) -> x = var_name) env with
-  | Some (_, e) -> Some e
+  match List.find_opt (fun x -> x.name = var_name) env with
+  | Some v -> Some v.value
   | None -> None
 
 let lookup (var_name : string) (env : environment) = 
-  match List.find_opt (fun (x, _) -> x = var_name) env with
-  | Some (_, Unresolved _) | None -> None
-  | Some (_, e) -> Some e
+  match List.find_opt (fun x -> x.name = var_name) env with
+  | None -> None
+  | Some v -> (match v.value with
+    | Unresolved _ -> None
+    | _ -> Some v.value
+  )
 
 let bool_wrap (b : bool) = match b with
   | true -> True
@@ -54,9 +58,12 @@ let rec parse_prog (p : prog) (env : environment) =
   | Some e -> ( 
     match e with 
     | Assign (x, e, assign_pos) -> 
-      parse_prog (List.tl p) ((x, parse_expr e env) :: env)
-    | FunctionDef (name, params, body) -> 
-      parse_prog (List.tl p) ((name, Fn (params, body)) :: env)
+      let v = {name = x; line = Some assign_pos.line; value = parse_expr e env} in
+      parse_prog (List.tl p) (v :: env)
+    | FunctionDef (name, params, body) ->
+       (*TODO!: fix line number  *)
+      let v = {name = name; line = None; value = Fn (params, body)} in
+      parse_prog (List.tl p) (v :: env)
   )
   | None -> env
 
@@ -205,7 +212,7 @@ and parse_expr (ex : expr) (env : environment) =
           List.mapi 
           (fun i e -> match e with 
             | Ident x -> 
-              (x, parse_expr (List.nth args i) env)
+              {name = x; line = None; value = parse_expr (List.nth args i) env}
             (* TODO: handle the error better *)
             | _ -> failwith "fn params should all be ident"
           ) params
@@ -256,7 +263,8 @@ and parse_expr (ex : expr) (env : environment) =
         List.init (List.length l) 
         (fun idx ->
           let cur_iter = List.nth l idx in
-          let list_comp_env = (var_name, cur_iter) :: env in
+          let v = {name = var_name; line = None; value = cur_iter} in 
+          let list_comp_env = v :: env in
           match parse_expr e list_comp_env with
           | Unresolved _ as u -> (
             has_unresolved := true;
@@ -281,9 +289,11 @@ and parse_expr (ex : expr) (env : environment) =
         List.init (List.length l) 
         (fun idx ->
           let cur_iter = List.nth l idx in
-          let list_comp_env = (var_name, cur_iter) :: env in
+          let iter_var = {name = var_name; line = None; value = cur_iter} in
+          let list_comp_env = iter_var :: env in
           let i_res = parse_expr e list_comp_env in
-          let i_res_env = (var_name, i_res) :: env in
+          let i_res_var = {name = var_name; line = None; value = i_res} in
+          let i_res_env = i_res_var :: env in
           match (parse_expr filter i_res_env) with
             | True -> Some i_res
             | False -> None
@@ -312,7 +322,7 @@ and parse_expr (ex : expr) (env : environment) =
     | Unresolved _ -> Unresolved t
     | UndefinedError err -> UndefinedError (t :: err)
     | _ -> (
-      let let_env = (s, e1') :: env in
+      let let_env = {name = s; line = None; value = e1'} :: env in
       match parse_expr e2 let_env with
       | Unresolved _ -> Unresolved t
       | UndefinedError err -> UndefinedError (t :: err)
@@ -351,18 +361,18 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
 
 let rec resolve_all (env : environment) (idx : int) = 
   match List.nth_opt env idx with
-  | Some (x, e) -> (match e with 
-    | Unresolved v ->
+  | Some v -> (match v.value with 
+    | Unresolved e ->
       if find_unresolved e env = [] then 
-        let env = List.filter (fun (x', _) -> not (x = x')) env in
-        resolve_all ((x, parse_expr v env) :: env) 0 
+        let env = List.filter (fun v' -> not (v.name = v'.name)) env in
+        resolve_all ({name = v.name; line = v.line; value = parse_expr e env} :: env) 0 
       else 
         resolve_all env (idx + 1)
     | ExprList lst as expr_lst -> 
       if find_unresolved expr_lst env = [] then (
         let lst = List.map (fun e -> match e with Unresolved e -> e | _ -> e) lst in
-        let env = List.filter (fun (x', _) -> not (x = x')) env in
-        resolve_all ((x, parse_expr (ExprList lst) env) :: env) (idx + 1)
+        let env = List.filter (fun v' -> not (v.name = v'.name)) env in
+        resolve_all ({name = v.name; line = v.line; value = parse_expr (ExprList lst) env} :: env) (idx + 1)
       ) else 
         resolve_all env (idx + 1)
     | _ -> resolve_all env (idx + 1)
@@ -397,11 +407,11 @@ let parse_input file_or_str emit_output =
     let env = List.rev (parse_prog res Builtins.env) in
     let env = resolve_all env 0 in
     if emit_output then 
-      List.iter (fun (x, e) -> 
-        if Builtins.name_is_taken x && not (Config.emit_builtins_in_env) then
+      List.iter (fun v -> 
+        if Builtins.name_is_taken v.name && not (Config.emit_builtins_in_env) then
           ()
         else
-          print_endline (x ^ ": " ^ string_of_expr e)) 
+          print_endline (string_of_var v)) 
     env;
-    run_passes env;
+    Passes.run_passes env;
     (res, env)
