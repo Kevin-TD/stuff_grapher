@@ -56,8 +56,8 @@ newlines:
 stmt:
   | id = IDENT EQUAL e = expr
     { Assign (id, e, mkpos $startpos) }
-  | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN EQUAL e3 = expr 
-    { FunctionDef(name, e2, e3) }
+  | name = IDENT LEFT_PAREN params = expr_list_elems RIGHT_PAREN EQUAL body = expr 
+    { Assign (name, Fn (params, body), mkpos $startpos) }
   | e = expr { Assign ("_" ^ (string_of_int (mkpos $startpos).line), e, mkpos $startpos) }
 
 expr:

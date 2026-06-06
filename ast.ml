@@ -37,7 +37,6 @@ type expr =
   function. e.g., sqrt *)
 
 and stmt =
-  | FunctionDef of string * expr list * expr (* name, params, body *)
   | Assign of string * expr * pos
 
 type prog = stmt list
@@ -95,8 +94,6 @@ let rec string_of_expr = function
     
 let string_of_stmt = function
     | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ", Line " ^ string_of_int p.line ^ ")" 
-    | FunctionDef (x, e1, e2) -> 
-    "FunctionDef(" ^ x ^ ", " ^ string_of_expr (ExprList e1) ^ ", " ^ string_of_expr e2 ^ ")"
   
 let string_of_var v = 
   let string_of_line = function

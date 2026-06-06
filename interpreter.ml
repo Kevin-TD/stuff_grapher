@@ -25,8 +25,6 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: integrals, derivatives *)
 (* TODO: consider removing ints and only use floats. list indexing will just floor the input *)
 
-(* TODO!: remove functiondef as a stmt. its just sugar! fix line number *)
-
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
   match List.find_opt (fun x -> x.name = var_name) env with
@@ -59,10 +57,6 @@ let rec parse_prog (p : prog) (env : environment) =
     match e with 
     | Assign (x, e, assign_pos) -> 
       let v = {name = x; line = Some assign_pos.line; value = parse_expr e env} in
-      parse_prog (List.tl p) (v :: env)
-    | FunctionDef (name, params, body) ->
-       (*TODO!: fix line number  *)
-      let v = {name = name; line = None; value = Fn (params, body)} in
       parse_prog (List.tl p) (v :: env)
   )
   | None -> env
