@@ -1,6 +1,8 @@
 (* dune build --profile release *)
 (* output file _build/default/js_main.bc.js *)
 
+(* TODO: export a list of names that the latex should recognize and write non-italicized *)
+
 open Js_of_ocaml
 open Ast
 

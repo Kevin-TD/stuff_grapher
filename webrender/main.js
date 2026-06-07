@@ -34,7 +34,7 @@ function createBlock(index, focusIt = true) {
   }
 
   const mqField = MQ.MathField(mqSpan, {
-    autoOperatorNames: "if then else for when range",
+    autoOperatorNames: "if then else for when range fun",
     autoCommands: "pi theta sqrt sum int",
     autoSubscriptNumerals: true,
     sumStartsWithNEquals: true,
@@ -86,7 +86,16 @@ function createBlock(index, focusIt = true) {
       mqField.keystroke('Backspace');
       mqField.write('\\quad\\leftarrow\\quad');
     }
-    lastKey = e.key;
+    if (e.key === ">" && lastKey === "-") {
+      e.preventDefault();
+      mqField.keystroke('Backspace');
+      mqField.write('\\quad\\rightarrow\\quad');
+    }
+
+    if (!["Shift", "Control", "Alt", "Meta"].includes(e.key)) {
+      lastKey = e.key;
+    }
+
   });
 
   mqSpan.addEventListener('keyup', (e) => {
@@ -137,6 +146,7 @@ function getCode() {
             .replace("\\cdot", "*")
             .replace("\\ne", "!=")
             .replace("\\leftarrow", "<-")
+            .replace("\\rightarrow", "->")
             .replace(/\\(.*?){(.*?)}/g, "$1($2)")
             .replace(/\^{(.*?)}/g, "^($1)")
 

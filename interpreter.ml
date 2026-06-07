@@ -24,6 +24,7 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: sigma/sum, products *)
 (* TODO: integrals, derivatives *)
 (* TODO: consider removing ints and only use floats. list indexing will just floor the input *)
+(* TODO: make it so it is valid to put a num right next to a expr so 3x would immediately parse as 3*x *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
