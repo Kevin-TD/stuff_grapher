@@ -4,6 +4,25 @@ const addBtn = document.getElementById('add-btn')
 let blocks = []
 let lastKey = null
 
+// only the ones that i care about. which is what most matheticians only care about
+let greekConstants = "alpha beta gamma delta zeta theta kappa lambda mu xi pi rho sigma tau phi chi psi omega Gamma Delta Theta Lambda Xi Sigma Phi Psi Omega"
+let autoCommandNames = "sqrt sum prod int"
+
+let allAutoCommands = `${greekConstants} ${autoCommandNames}`
+
+let namesToEmbolden = SGL.namesToEmbolden()
+
+// removes the the preceeding "\" when greek constants are typed into the latex. made so SGL can parse it
+function removeLatexArtifacts(str) {
+  let s = str
+  let allConsts = `${greekConstants} ${namesToEmbolden}`
+  allConsts = allConsts.split(" ")
+  for (let c of allConsts) {
+    s = s.replaceAll(`\\${c}`, c)
+  }
+  return s
+}
+
 function createBlock(index, focusIt = true) {
   const blockEl = document.createElement('div');
   blockEl.className = 'math-block';
@@ -34,8 +53,8 @@ function createBlock(index, focusIt = true) {
   }
 
   const mqField = MQ.MathField(mqSpan, {
-    autoOperatorNames: "if then else for when range fun",
-    autoCommands: "pi theta sqrt sum int",
+    autoOperatorNames: namesToEmbolden,
+    autoCommands: allAutoCommands,
     autoSubscriptNumerals: true,
     sumStartsWithNEquals: true,
     spaceBehavesLikeTab: false,
@@ -54,6 +73,7 @@ function createBlock(index, focusIt = true) {
     }
   });
 
+  mqField.resultEl = resultEl
   blocks[index] = mqField;
 
   mqSpan.addEventListener('keydown', (e) => {
@@ -100,8 +120,25 @@ function createBlock(index, focusIt = true) {
 
   mqSpan.addEventListener('keyup', (e) => {
     console.log(getCode())
-    let f = SGL.parseStringInput(getCode())
-    console.log(f)
+
+    try {
+      let output = SGL.parseStringInput(getCode())
+
+      for (let i = 0; i < blocks.length; i++) {
+        let outputResult = output[i + 1]
+
+        if (outputResult !== undefined) {
+          if (outputResult === "") {
+            blocks[i].resultEl.textContent = ""
+          } else {
+            blocks[i].resultEl.textContent = `= ${outputResult}`
+          }
+        }
+      }
+    } 
+    catch { 
+      
+    }
   })
 
   mqWrap.addEventListener('click', () => mqField.focus());
@@ -136,6 +173,7 @@ function getCode() {
     let codes = []
     for (let block of blocks) {
         let rawLatex = block.latex()
+        console.log(rawLatex)
         let parseableEq = rawLatex
             .replace(/\\left\(/g, "(")
             .replace(/\\right\)/g, ")")
@@ -143,12 +181,16 @@ function getCode() {
             .replace(/\\right\]/g, "]")
             .replace(/\\quad/g, " ")
             .replace(/\\operatorname{(.*?)}/g, " $1 ")
-            .replace("\\cdot", "*")
-            .replace("\\ne", "!=")
-            .replace("\\leftarrow", "<-")
-            .replace("\\rightarrow", "->")
+            .replace(/\\cdot/g, "*")
+            .replace(/\\ne/g, "!=")
+            .replace(/\\leftarrow/g, "<-")
+            .replace(/\\rightarrow/g, "->")
+            .replace(/\\frac{(.*?)}{(.*?)}/g, "($1/$2)")
             .replace(/\\(.*?){(.*?)}/g, "$1($2)")
             .replace(/\^{(.*?)}/g, "^($1)")
+        
+        parseableEq = removeLatexArtifacts(parseableEq)
+        console.log(parseableEq)
 
         codes.push(parseableEq)
     }
@@ -160,11 +202,3 @@ let board = JXG.JSXGraph.initBoard(
         boundingbox: [-10, 10, 10, -10],
         axis: true
     })
-
-let sampleCode = `a = 10
-9 + 10
-a + 10`
-
-let sampleOutput = SGL.parseStringInput(sampleCode)
-
-console.log(sampleOutput)
