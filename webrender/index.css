@@ -17,7 +17,6 @@ body {
   font-size: 0.85rem;
   cursor: pointer;
 }
-
 .add-btn:hover { background: #f0f0f0; }
 
 .block-list {
@@ -58,19 +57,26 @@ body {
   min-height: 3.5rem;
 }
 
-.mq-editable-field {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  color: #000 !important;
-  font-size: 1rem !important;
+math-field {
   width: 100%;
-  outline: none !important;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  --hue: 0;
+  --highlight-color: transparent;
+  --caret-color: #000;
+  --selection-background-color: #b3d0f5;
+  --selection-color: #000;
+  --contains-highlight-background-color: transparent;
 }
 
-.mq-editable-field.mq-focused {
-  border: none !important;
-  box-shadow: none !important;
+/* hide mathlive's own border/focus ring */
+math-field::part(container) {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
 }
 
 .block-result {
