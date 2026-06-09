@@ -118,7 +118,7 @@ function createBlock(index, focusIt = true) {
 
   });
 
-  mqSpan.addEventListener('keyup', (e) => {
+  mqSpan.addEventListener('input', (e) => {
     console.log(getCode())
 
     try {
@@ -173,25 +173,18 @@ function getCode() {
     let codes = []
     for (let block of blocks) {
         let rawLatex = block.latex()
-        console.log(rawLatex)
+        // operatorname to text hack: if i leave it as operatorname, the mathlive parser will not interpret our custom functions like "if" as a function but as two symbols "i" and "f" so it turns into "i f". in order to prevent this, i wrap it in a text block; this parses text{if} into "if" (including the quotes), keeping the letters together. all that is then left is to remove the quotes with normal regex
+
         let parseableEq = rawLatex
-            .replace(/\\left\(/g, "(")
-            .replace(/\\right\)/g, ")")
-            .replace(/\\left\[/g, "[")
-            .replace(/\\right\]/g, "]")
-            .replace(/\\quad/g, " ")
-            .replace(/\\operatorname{(.*?)}/g, " $1 ")
-            .replace(/\\cdot/g, "*")
+            .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")
             .replace(/\\ne/g, "!=")
             .replace(/\\leftarrow/g, "<-")
             .replace(/\\rightarrow/g, "->")
-            .replace(/\\frac{(.*?)}{(.*?)}/g, "($1/$2)")
-            .replace(/\\(.*?){(.*?)}/g, "$1($2)")
-            .replace(/\^{(.*?)}/g, "^($1)")
-        
-        parseableEq = removeLatexArtifacts(parseableEq)
-        console.log(parseableEq)
 
+        parseableEq = 
+          MathLive.convertLatexToAsciiMath(parseableEq)
+          .replace(/"(.*?)"/g, " $1 ")
+          
         codes.push(parseableEq)
     }
     return codes.join("\n")
