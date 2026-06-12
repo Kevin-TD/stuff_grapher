@@ -8,8 +8,12 @@ open Js_of_ocaml
 open Ast
 
 let string_of_expr_frontend = function
-  | Integer i ->  string_of_int i
-  | Real r -> string_of_float r
+  | Real r -> (
+    if r = floor r then
+      string_of_int (int_of_float r)
+    else
+      string_of_float r
+  )
   | _ -> ""
   
 let parse_string_input s =

@@ -1,7 +1,6 @@
 type pos = { line: int; col: int }
 
 type expr =
-  | Integer of int
   | Real of float
   | Ident of string
   | Plus of expr * expr
@@ -50,7 +49,6 @@ type var = {
 type environment = var list
 
 let rec string_of_expr = function
-  | Integer i -> "Int(" ^ string_of_int i ^ ")"
   | Real r -> "Real(" ^ string_of_float r ^ ")"
   | Ident x -> "Ident(" ^ x ^ ")"
   | Plus (e1, e2) -> "Plus(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
@@ -93,7 +91,7 @@ let rec string_of_expr = function
   | LetIn (s, e1, e2) -> "LetIn(" ^ s ^ ", " ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
     
 let string_of_stmt = function
-    | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ", Line " ^ string_of_int p.line ^ ")" 
+  | Assign (x, s, p) -> "Assign(" ^ x ^ ", " ^ string_of_expr s ^ ", Line " ^ string_of_int p.line ^ ")" 
   
 let string_of_var v = 
   let string_of_line = function

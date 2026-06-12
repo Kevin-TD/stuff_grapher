@@ -26,36 +26,61 @@ let real_eq_expr (v : float) (e : expr) =
     | _ -> false
 
 let make_range x y = 
-    ExprList (List.init (y - x + 1) (fun i -> Integer (x + i)))
+    List.init (y - x + 1) (fun i -> float_of_int (x + i))
 
 let int_lst_to_expr_lst (lst : int list) =
-    ExprList (List.map (fun i -> Integer i) lst)
+    ExprList (List.map (fun i -> Real (float_of_int i)) lst)
+
+let expr_lst_to_reals (e_lst : expr list) = 
+    let reals = List.filter (fun ex -> match ex with 
+        | Real _ -> true
+        | _ -> false)
+    e_lst in
+    List.map (fun ex -> match ex with
+        | Real r -> r
+        | _ -> failwith "impossible error unwrapping reals") 
+    reals
+
+let rec float_lst_eqs fl1 fl2 = match fl1, fl2 with
+    | [], [] -> true
+    | [], _ -> false
+    | _, [] -> false
+    | (h1 :: t1), (h2 :: t2) -> real_eq h1 h2 && float_lst_eqs t1 t2
+
+let ex_eq_reals fl e = match e with
+    | ExprList l -> float_lst_eqs fl (expr_lst_to_reals l)
+    | _ -> false
+
+let eq_reals (fl : float list) (e : expr) =
+    match e with
+    | ExprList l -> fl = expr_lst_to_reals l
+    | _ -> false
 
 let tests = [
     {
         name = "add";
         env_to_satisfy = [
-            ("x", "x not equal to int 1", fun e -> e = Integer 1);
-            ("y", "y not equal to int 5", fun e -> e = Integer 5);
-            ("z", "z not equal to int 6", fun e -> e = Integer 6);
+            ("x", "x != 1", real_eq_expr 1.);
+            ("y", "y != 5", real_eq_expr 5.);
+            ("z", "z != 6", real_eq_expr 6.);
         ]
     };
     {
         name = "swap_order";
         env_to_satisfy = [
-            ("w1", "w1 not (roughly) equal to real num 9.209", real_eq_expr 9.209);
-            ("w", "w != Int 7", fun e -> e = Integer 7);
-            ("z", "z != Int 4", fun e -> e = Integer 4);
-            ("y", "y != Int 3", fun e -> e = Integer 3);
-            ("x", "x != Int 1", fun e -> e = Integer 1);
-            ("h", "h != Int 1", fun e -> e = Integer 1);
+            ("w1", "w1 != 23.1177", real_eq_expr 23.1177);
+            ("w", "w != 7", real_eq_expr 7.);
+            ("z", "z != 4", real_eq_expr 4.);
+            ("y", "y != 3", real_eq_expr 3.);
+            ("x", "x != 1", real_eq_expr 1.);
+            ("h", "h != 1", real_eq_expr 1.);
         ]
     };
     {
         name = "fun_call";
         env_to_satisfy = [
-            ("j1", "j1 != Int 11", fun e -> e = Integer 11);
-            ("j2", "j2 != Int 47", fun e -> e = Integer 47)
+            ("j1", "j1 != Int 11", real_eq_expr 11.);
+            ("j2", "j2 != Int 47", real_eq_expr 47.)
         ]
     };
     {
@@ -64,43 +89,43 @@ let tests = [
             ("z3", "z3 != False", fun e -> e = False);
             ("z2", "z2 != True", fun e -> e = True);
             ("x", "x != True", fun e -> e = True);
-            ("y", "y != Int 1", fun e -> e = Integer 1);
+            ("y", "y != Int 1", real_eq_expr 1.);
             ("z1", "z1 != True", fun e -> e = True);
-            ("e2", "e2 != Int 1", fun e -> e = Integer 1);
+            ("e2", "e2 != Int 1", real_eq_expr 1.);
             ("h", "h != False", fun e -> e = False);
-            ("i1", "i1 != Int 6", fun e -> e = Integer 6);
-            ("i2", "i2 != Int 5", fun e -> e = Integer 5);
-            ("k1", "k1 != Int 2", fun e -> e = Integer 2);
-            ("k2", "k2 != Int 3", fun e -> e = Integer 3);
-            ("k3", "k3 != Int 4", fun e -> e = Integer 4);
-            ("k4", "k4 != Int 5", fun e -> e = Integer 5)
+            ("i1", "i1 != Int 6", real_eq_expr 6.);
+            ("i2", "i2 != Int 5", real_eq_expr 5.);
+            ("k1", "k1 != Int 2", real_eq_expr 2.);
+            ("k2", "k2 != Int 3", real_eq_expr 3.);
+            ("k3", "k3 != Int 4", real_eq_expr 4.);
+            ("k4", "k4 != Int 5", real_eq_expr 5.)
         ]
     };
     {
         name = "list_and_indexing";
         env_to_satisfy = [
             ("a", "a != [5, 6, 3]", 
-                fun e -> e = ExprList ([Integer 5; Integer 6; Integer 3]);
+                ex_eq_reals [5.; 6.; 3.];
             );
-            ("b1", "b1 != 5", fun e -> e = Integer 5);
-            ("b2", "b2 != 6", fun e -> e = Integer 6);
-            ("b3", "b3 != 3", fun e -> e = Integer 3);
-            ("b4", "b4 != 6", fun e -> e = Integer 6)
+            ("b1", "b1 != 5", real_eq_expr 5.);
+            ("b2", "b2 != 6", real_eq_expr 6.);
+            ("b3", "b3 != 3", real_eq_expr 3.);
+            ("b4", "b4 != 6", real_eq_expr 6.)
         ]
     };
     {
         name = "factorial";
         env_to_satisfy = [
-            ("x", "x != Int 120", fun e -> e = Integer 120)
+            ("x", "x != Int 120", real_eq_expr 120.)
         ]
     };
     {
         name = "anon_funcs";
         env_to_satisfy = [
-            ("x1", "x1 != Int 8", fun e -> e = Integer 8);
-            ("b1", "b1 != Int 3", fun e -> e = Integer 3);
-            ("k1", "k1 != Int 3", fun e -> e = Integer 3);
-            ("kk1", "kk1 != Int 2", fun e -> e = Integer 2)
+            ("x1", "x1 != Int 8", real_eq_expr 8.);
+            ("b1", "b1 != Int 3", real_eq_expr 3.);
+            ("k1", "k1 != Int 3", real_eq_expr 3.);
+            ("kk1", "kk1 != Int 2", real_eq_expr 2.)
         ]
     };
     {
@@ -114,15 +139,15 @@ let tests = [
     {
         name = "neg_swap";
         env_to_satisfy = [
-            ("h", "h != -5", fun e -> e = Integer (-5))
+            ("h", "h != -5", real_eq_expr (-5.))
         ]
     };
     {
         name = "range";
         env_to_satisfy = [
-            ("x", "x != [1...10]", fun e -> e = make_range 1 10);
-            ("y", "y != [-5...10]", fun e -> e = make_range (-5) 10);
-            ("z", "z != [1]", fun e -> e = ExprList [Integer(1)]);
+            ("x", "x != [1...10]", ex_eq_reals (make_range 1 10));
+            ("y", "y != [-5...10]", ex_eq_reals (make_range (-5) 10));
+            ("z", "z != [1]", ex_eq_reals [1.]);
             ("z1", "z1 != []", fun e -> e = ExprList [])
         ]
     };
@@ -137,14 +162,14 @@ let tests = [
             ("j6", "j6 != sqrt(3)/2", real_eq_expr (sqrt(3.) /. 2.));
             ("j7", "j7 != sqrt(2)/2", real_eq_expr (sqrt(2.) /. 2.));
             ("j8", "j8 != sin(1)", real_eq_expr (sin (1.)));
-            ("j9", "j9 != Int(2)", fun e -> e = Integer 2);
+            ("j9", "j9 != Int(2)", real_eq_expr 2.);
             ("j10", "j10 != pi", real_eq_expr Builtins.pi_const);
         ]
     };
     {
         name = "list_comp";
         env_to_satisfy = [
-            ("z", "z != 10", fun e -> e = Integer 10);
+            ("z", "z != 10", real_eq_expr 10.);
             ("a1", "a1 != [6...15]", fun e -> e = int_lst_to_expr_lst [6;7;8;9;10;11;12;13;14;15]);
             ("a2", "a2 != [11...20]", fun e -> e = int_lst_to_expr_lst [11;12;13;14;15;16;17;18;19;20]);
             ("a3", "a3 != [1...4]", fun e -> e = int_lst_to_expr_lst [1;2;3;4]);
@@ -156,7 +181,7 @@ let tests = [
     {
         name = "comp_and_eq";
         env_to_satisfy = [
-            ("y", "y != 1", fun e -> e = Integer 1);
+            ("y", "y != 1", real_eq_expr 1.);
             ("a1", "a1 != [5]", fun e -> e = int_lst_to_expr_lst [5]);
             ("a2", "a2 != [6...15]", fun e -> e = int_lst_to_expr_lst [6;7;8;9;10;11;12;13;14;15])
         ]
@@ -171,31 +196,32 @@ let tests = [
     {
         name = "fun_param";
         env_to_satisfy = [
-            ("r", "r != 5", fun e -> e = Integer 5)
+            ("r", "r != 5", real_eq_expr 5.)
         ]
     };
     {
         name = "let_in";
         env_to_satisfy = [
-            ("x", "x != 6", fun e -> e = Integer 6);
-            ("a1", "a1 != 6", fun e -> e = Integer 6);
-            ("a2", "a2 != 7", fun e -> e = Integer 7);
-            ("a3", "a3 != 3", fun e -> e = Integer 3);
-            ("a4", "a4 != 1", fun e -> e = Integer 1);
-            ("a5", "a5 != 0", fun e -> e = Integer 0);
+            ("x", "x != 6", real_eq_expr 6.);
+            ("a1", "a1 != 6", real_eq_expr 6.);
+            ("a2", "a2 != 7", real_eq_expr 7.);
+            ("a3", "a3 != 3", real_eq_expr 3.);
+            ("a4", "a4 != 1", real_eq_expr 1.);
+            ("a5", "a5 != 0", real_eq_expr 0.);
         ]
     }
 ]
 
 let do_test (t : test) =
     let (_, result_env) = parse_input (FileName (Config.env_test_dirname ^ t.name ^ Config.file_ext)) Config.emit_test_eval_output in
-    List.iter 
+    let test_filename = Config.env_test_dirname ^ t.name ^ Config.file_ext in
+    List.iter
     (fun (x, if_err, cond_to_satsify) -> match lookup x result_env with
         | Some result_expr -> 
             if cond_to_satsify result_expr then ()
             else print_endline 
-            ("FAIL: test " ^ t.name ^ ". var " ^ x ^ " received value " ^ string_of_expr result_expr ^ ", but unsatisfied due to: " ^ if_err)
-        | None -> print_endline ("FAIL: test " ^ t.name ^ " failed. " ^ x ^ " not found")
+            ("FAIL " ^ test_filename ^ ": var " ^ x ^ " received value " ^ string_of_expr result_expr ^ ", but unsatisfied due to: " ^ if_err)
+        | None -> print_endline ("FAIL " ^ test_filename ^ ": " ^ x ^ " not found")
     ) 
     t.env_to_satisfy
 

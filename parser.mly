@@ -8,7 +8,6 @@ let mkpos (startpos : Lexing.position) =
 
 %token <string> IDENT
 %token <float> REAL
-%token <int> INTEGER
 %token EQUAL
 %token NEWLINE
 %token EOF
@@ -61,7 +60,6 @@ stmt:
   | e = expr { Assign ("_" ^ (string_of_int (mkpos $startpos).line), e, mkpos $startpos) }
 
 expr:
-  | i = INTEGER { Integer i }
   | r = REAL { Real r }
   | id = IDENT { Ident id }
   | e1 = expr PLUS e2 = expr { Plus(e1, e2) }

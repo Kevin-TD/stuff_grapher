@@ -6,7 +6,6 @@ let pi_const = 3.14159265359
 let real_arity1_extern (fn : float -> float) (args : expr list)  =
     let n = List.nth args 0 in 
     match n with
-    | Integer i -> Real (fn (float_of_int i))
     | Real r -> Real (fn r)
     | _ -> UndefinedError args
 
@@ -43,15 +42,17 @@ let extern_functions = [
         let x = List.nth args 0 in
         let y = List.nth args 1 in
         match x, y with
-        | Integer x, Integer y -> Integer (modulo x y)
+        | Real x, Real y -> Real (float_of_int (modulo (int_of_float x) (int_of_float y)))
         | _ -> UndefinedError args
     )};
     {name = "range"; line = None; value = ExternFn (2, fun args ->
         let range_begin = List.nth args 0 in
         let range_end = List.nth args 1 in
         match range_begin, range_end with
-        | Integer x, Integer y -> (
-            let l = List.init (y - x + 1) (fun i -> Integer (x + i)) in
+        | Real x, Real y -> (
+            let x = int_of_float x in
+            let y = int_of_float y in
+            let l = List.init (y - x + 1) (fun i -> Real (float_of_int (x + i))) in
             ExprList l
         )
         | _ -> UndefinedError args
@@ -61,11 +62,13 @@ let extern_functions = [
         let max_int_arg = List.nth args 1 in
         Random.self_init ();
         match min_int_arg, max_int_arg with
-        | Integer x, Integer y -> (
+        | Real x, Real y -> (
+            let x = int_of_float x in
+            let y = int_of_float y in
             if x > y then
                 UndefinedError args
             else
-                Integer (Random.int_in_range ~min:x ~max:y)
+                Real (float_of_int (Random.int_in_range ~min:x ~max:y))
         )
         | _ -> UndefinedError args
     )};
@@ -73,28 +76,12 @@ let extern_functions = [
         let min_int_arg = List.nth args 0 in
         let max_int_arg = List.nth args 1 in
         Random.self_init ();
-        let rand_range x y = 
+        match min_int_arg, max_int_arg with
+        | Real x, Real y -> (
             if x > y then
                 UndefinedError args
             else
                 Real (x +. (y -. x) *. Random.float 1.) 
-        in
-        match min_int_arg, max_int_arg with
-        | Integer x, Integer y -> (
-            let x = float_of_int x in
-            let y = float_of_int y in
-            rand_range x y
-        )
-        | Integer x, Real y -> (
-            let x = float_of_int x in
-            rand_range x y
-        )
-        | Real x, Integer y -> (
-            let y = float_of_int y in
-            rand_range x y
-        )
-        | Real x, Real y -> (
-            rand_range x y
         )
         | _ -> UndefinedError args
     )};

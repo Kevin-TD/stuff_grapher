@@ -10,6 +10,7 @@ parameters to be functions. here, because everything is lazy, we can do that!
 type checking isnt very strong but it allows me to easily implement that.  *)
 (* additionally: *)
 (* lists are 1-indexed *)
+(* operators where ints are expected converts float input by removing the decimal part; truncating, not rounding. *)
 
 (* TODO: Fn should be of string list not expr list to make it clear its params *)
 (* TODO: document sgl *)
@@ -44,14 +45,6 @@ let bool_wrap (b : bool) = match b with
   | true -> True
   | false -> False
 
-(* integer exponentiation *)
-let rec pow a = function
-  | 0 -> 1
-  | 1 -> a
-  | n -> 
-    let b = pow a (n / 2) in
-    b * b * (if n mod 2 = 0 then 1 else a)
-
 let rec parse_prog (p : prog) (env : environment) =
   match List.nth_opt p 0 with
   | Some e -> ( 
@@ -64,7 +57,7 @@ let rec parse_prog (p : prog) (env : environment) =
 
 and parse_expr (ex : expr) (env : environment) = 
   match ex with
-  | Integer _ | Real _ as n -> n
+  | Real _ as n -> n
   | True | False as b -> b
   | UndefinedError _ | IndexOutOfBoundsError _ 
   | FunctionCallError _ as err -> err
@@ -76,9 +69,6 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | Plus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> Integer (i1 + i2)
-    | Integer i, Real r 
-    | Real r, Integer i -> Real (r +. float_of_int i)
     | Real r1, Real r2 -> Real (r1 +. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -88,9 +78,6 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | Minus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> Integer (i1 - i2)
-    | Integer i, Real r -> Real (float_of_int i -. r)
-    | Real r, Integer i -> Real (r -. float_of_int i)
     | Real r1, Real r2 -> Real (r1 -. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -100,9 +87,6 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | Mult (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> Integer (i1 * i2)
-    | Integer i, Real r 
-    | Real r, Integer i -> Real (r *. float_of_int i)
     | Real r1, Real r2 -> Real (r1 *. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -112,9 +96,6 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | Div (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> Real (float_of_int i1 /. float_of_int i2)
-    | Integer i, Real r -> Real (float_of_int i /. r)
-    | Real r, Integer i -> Real (r /. float_of_int i)
     | Real r1, Real r2 -> Real (r1 /. r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -124,10 +105,7 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | Exp (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> Integer (pow i1 i2)
-    | Integer i, Real r -> Real ((float_of_int i) ** r)
-    | Real r, Integer i -> Real (r ** (float_of_int i))
-    | Real r1, Real r2 -> Real (r1 +. r2)
+    | Real r1, Real r2 -> Real (r1 ** r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
     | UndefinedError err, _
@@ -136,16 +114,12 @@ and parse_expr (ex : expr) (env : environment) =
   )
   | Neg ex as e -> (
     match parse_expr ex env with
-    | Integer i -> Integer (-1 * i)
     | Real r -> Real (-1. *. r)
     | Unresolved _ -> Unresolved e
     | UndefinedError err -> UndefinedError (e :: err)
     | _ -> UndefinedError [e]
   )
   | Gt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> bool_wrap (i1 > i2)
-    | Integer i, Real r -> bool_wrap (float_of_int i > r)
-    | Real r, Integer i -> bool_wrap (r > float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 > r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -154,9 +128,6 @@ and parse_expr (ex : expr) (env : environment) =
     | _, _ -> UndefinedError [e]
   )
   | Gte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> bool_wrap (i1 >= i2)
-    | Integer i, Real r -> bool_wrap (float_of_int i >= r)
-    | Real r, Integer i -> bool_wrap (r >= float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 >= r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -165,9 +136,6 @@ and parse_expr (ex : expr) (env : environment) =
     | _, _ -> UndefinedError [e]
   )
   | Lt (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> bool_wrap (i1 < i2)
-    | Integer i, Real r -> bool_wrap (float_of_int i < r)
-    | Real r, Integer i -> bool_wrap (r < float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 < r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -176,9 +144,6 @@ and parse_expr (ex : expr) (env : environment) =
     | _, _ -> UndefinedError [e]
   )
   | Lte (e1, e2) as e -> (match parse_expr e1 env, parse_expr e2 env with
-    | Integer i1, Integer i2 -> bool_wrap (i1 <= i2)
-    | Integer i, Real r -> bool_wrap (float_of_int i <= r)
-    | Real r, Integer i -> bool_wrap (r <= float_of_int i)
     | Real r1, Real r2 -> bool_wrap (r1 <= r2)
     | Unresolved _, _
     | _, Unresolved _ -> Unresolved e
@@ -241,9 +206,9 @@ and parse_expr (ex : expr) (env : environment) =
   | IndexOf (e, idx) as t -> (match parse_expr e env, parse_expr idx env with
     | Unresolved _, _ | _, Unresolved _ -> Unresolved t
     | UndefinedError err, _ | _, UndefinedError err -> UndefinedError (t :: err)
-    | ExprList l, Integer i -> (
+    | ExprList l, Real i -> (
       try (
-        match List.nth_opt l (i - 1) with
+        match List.nth_opt l (int_of_float i - 1) with
         | Some e -> e
         | None -> IndexOutOfBoundsError t
       ) 
@@ -327,7 +292,7 @@ and parse_expr (ex : expr) (env : environment) =
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
-  | Integer _ | Real _ | True | False | Fn _ | ExternFn _ 
+  | Real _ | True | False | Fn _ | ExternFn _ 
   | UndefinedError _ | IndexOutOfBoundsError _ | FunctionCallError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
