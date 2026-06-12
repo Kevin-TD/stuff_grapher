@@ -4,24 +4,15 @@ const addBtn = document.getElementById('add-btn')
 let blocks = []
 let lastKey = null
 
-// only the ones that i care about. which is what most matheticians only care about
-let greekConstants = "alpha beta gamma delta zeta theta kappa lambda mu xi pi rho sigma tau phi chi psi omega Gamma Delta Theta Lambda Xi Sigma Phi Psi Omega"
+// only the ones that i care about
+let greekConstants = "alpha beta gamma delta zeta theta kappa lambda xi pi rho sigma tau phi chi psi omega Gamma Delta Theta Lambda Xi Sigma Phi Psi Omega"
 let autoCommandNames = "sqrt sum prod int"
 
 let allAutoCommands = `${greekConstants} ${autoCommandNames}`
 
 let namesToEmbolden = SGL.namesToEmbolden()
 
-// removes the the preceeding "\" when greek constants are typed into the latex. made so SGL can parse it
-function removeLatexArtifacts(str) {
-  let s = str
-  let allConsts = `${greekConstants} ${namesToEmbolden}`
-  allConsts = allConsts.split(" ")
-  for (let c of allConsts) {
-    s = s.replaceAll(`\\${c}`, c)
-  }
-  return s
-}
+let newNamesAdded = []
 
 function createBlock(index, focusIt = true) {
   const blockEl = document.createElement('div');
@@ -118,11 +109,39 @@ function createBlock(index, focusIt = true) {
 
   });
 
-  mqSpan.addEventListener('input', (e) => {
+  mqSpan.addEventListener('keyup', (e) => {
     console.log(getCode())
 
     try {
-      let output = SGL.parseStringInput(getCode())
+      let code = getCode()
+      let output = SGL.parseStringInput(code)
+      let newVarNames = SGL.getNewVarNames(code)
+      
+      let newNamesToAdd = newVarNames.filter(x => 
+        x.length > 1 && 
+        !namesToEmbolden.split(" ").includes(x) &&
+        !allAutoCommands.split(" ").includes(x) &&
+        !greekConstants.split(" ").includes(x.split("_")[0]) &&
+        !newNamesAdded.includes(x)
+      )
+
+      console.log(newNamesToAdd)
+
+      for (let newVar of newNamesToAdd) {
+        if (!newNamesAdded.includes(newVar)) {
+          newNamesAdded.push(newVar)
+        }
+      }
+
+      let allNewNames = SGL.namesToEmbolden() + " " + newNamesAdded.join(" ")
+
+      if (newNamesToAdd.length > 0 && allNewNames != namesToEmbolden) {
+        for (let block of blocks) {
+          block.config({ autoOperatorNames: allNewNames })
+          block.latex(block.latex()) // re-renders the block
+        }
+        namesToEmbolden = allNewNames
+      }
 
       for (let i = 0; i < blocks.length; i++) {
         let outputResult = output[i + 1]
@@ -174,12 +193,15 @@ function getCode() {
     for (let block of blocks) {
         let rawLatex = block.latex()
         // operatorname to text hack: if i leave it as operatorname, the mathlive parser will not interpret our custom functions like "if" as a function but as two symbols "i" and "f" so it turns into "i f". in order to prevent this, i wrap it in a text block; this parses text{if} into "if" (including the quotes), keeping the letters together. all that is then left is to remove the quotes with normal regex
-
         let parseableEq = rawLatex
-            .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")
-            .replace(/\\ne/g, "!=")
-            .replace(/\\leftarrow/g, "<-")
-            .replace(/\\rightarrow/g, "->")
+          .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")
+          .replace(/\\ne/g, "!=")
+          .replace(/\\leftarrow/g, "<-")
+          .replace(/\\rightarrow/g, "->")
+          .replace(/\\text{[^}]*}|\\[a-zA-Z]+|([a-zA-Z][a-zA-Z0-9_]+)/g, (match, ident) => {
+          if (ident) return `\\text{${ident}}`;
+              return match;
+          })
 
         parseableEq = 
           MathLive.convertLatexToAsciiMath(parseableEq)

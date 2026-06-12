@@ -1,9 +1,6 @@
 (* dune build --profile release *)
 (* output file _build/default/js_main.bc.js *)
 
-(* TODO: export a list of names that the latex should recognize and write non-italicized *)
-(* TODO: export errors? erorr handling needs to be much better and like put it in the user result box or something. *)
-
 open Js_of_ocaml
 open Ast
 
@@ -28,6 +25,18 @@ let parse_string_input s =
   ) filter_env;
   obj
 
+let get_new_var_names s =
+  let (_, env) = Interpreter.parse_input (String s) false in
+  let filter_env = List.filter 
+  (fun v -> 
+    not (String.starts_with ~prefix:Sgl_consts.wildcard_var_symbol v.name) && 
+    v.line <> None
+  ) 
+  env in
+  let names = List.map (fun v -> v.name) filter_env in
+  Js.array (Array.of_list (List.map Js.string names))
+
+
 let auto_operator_names = [
   "if"; "then"; "else"; "fun"; "when"; "for"
 ]
@@ -44,6 +53,9 @@ let () =
   Js.export "SGL" (object%js
     method parseStringInput input =
       parse_string_input (Js.to_string input)
+    
+    method getNewVarNames input =
+      get_new_var_names (Js.to_string input)
     
     method namesToEmbolden = 
       Js.string names_to_embolden
