@@ -1,0 +1,10 @@
+a = (1,2)
+v1 = a.x
+v2 = a.y
+v3 = b.x
+b = (z + 10, z - 10)
+z = 10
+v4 = b.y
+c = (5 > 4, 1)
+v5 = if c.x then 1 else 3
+v6 = if (c.y + 1) > 1 then 32 else 1

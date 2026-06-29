@@ -28,6 +28,7 @@ let mkpos (startpos : Lexing.position) =
 %token PIPE COLON
 %token WHEN FOR
 %token LET IN
+%token ACCESS_DOT
 
 %left PLUS MINUS
 %left MULT DIV
@@ -79,8 +80,8 @@ expr:
   | IF e1 = expr THEN e2 = expr ELSE e3 = expr { If_else(e1, e2, e3) }
   | LEFT_SQR_BRACKET l = expr_list_elems RIGHT_SQR_BRACKET { ExprList l }
   | name = IDENT LEFT_PAREN e2 = expr_list_elems RIGHT_PAREN { FunctionCall(name, e2) }
-  | FUN param = expr ARROW body = expr { Fn ([param], body) }
-  | FUN LEFT_PAREN params = expr_list_elems RIGHT_PAREN ARROW body = expr
+  | FUN param = IDENT ARROW body = expr { Fn ([Ident param], body) }
+  | FUN LEFT_PAREN params = ident_list RIGHT_PAREN ARROW body = expr
     { Fn (params, body) }
   | e = expr LEFT_SQR_BRACKET idx = expr RIGHT_SQR_BRACKET { IndexOf(e, idx)}
   | LEFT_SQR_BRACKET output = expr FOR id = IDENT EQUAL l = expr RIGHT_SQR_BRACKET
@@ -89,7 +90,18 @@ expr:
   { ListCompFilter (output, cond, id, l) }
   | LET id = IDENT EQUAL e1 = expr IN e2 = expr 
   { LetIn (id, e1, e2) }
+  | LEFT_PAREN e1 = expr COMMA e2 = expr RIGHT_PAREN
+  { Tuple2d(e1, e2) }
+  | e = expr ACCESS_DOT attr = IDENT
+  { AccessAttr(e, attr) }
 
 expr_list_elems:
   | /* empty */ { [] }
   | xs = separated_list(COMMA, expr) { xs }
+
+ident_list:
+  | /* empty */ { [] }
+  | xs = separated_list(COMMA, ident_expr) { xs }
+
+ident_expr:
+  | id = IDENT { Ident id }

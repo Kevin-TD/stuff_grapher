@@ -27,6 +27,7 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: values like sin(pi) turn into something close to 0 -- i want it to just be zero. not sure how to go about handling it *)
 (* TODO: frontend lists of just reals have output visible to the user *)
 (* TODO: frontend more user friendly error msgs *)
+(* TODO: frontend ability to drag around boxes *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
@@ -290,6 +291,31 @@ and parse_expr (ex : expr) (env : environment) =
       | _ as res -> res
     )
   )
+  | Tuple2d (e1, e2) as t -> (
+    let e1' = parse_expr e1 env in
+    match e1' with
+    | Unresolved _ -> Unresolved t
+    | UndefinedError err -> UndefinedError (t :: err)
+    | _ -> (
+      let e2' = parse_expr e2 env in
+      match e2' with
+      | Unresolved _ -> Unresolved t
+      | UndefinedError err -> UndefinedError (t :: err)
+      | _ -> Tuple2d (e1', e2')
+    )
+  )
+  | AccessAttr (e, attr) as t -> (
+    let e' = parse_expr e env in
+    match e' with
+    | Unresolved _ -> Unresolved t
+    | Tuple2d (x, y) -> (
+      match attr with
+      | "x" -> x
+      | "y" -> y
+      | _ -> UndefinedError [t]
+    )
+    | _ -> UndefinedError [t]
+  )
 
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
@@ -319,6 +345,10 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
     res
   | LetIn (_, e1, e2) -> 
     find_unresolved e1 env @ find_unresolved e2 env
+  | Tuple2d (x, y) ->
+    find_unresolved x env @ find_unresolved y env
+  | AccessAttr (e, _) ->
+    find_unresolved e env
 
 let rec resolve_all (env : environment) (idx : int) = 
   match List.nth_opt env idx with

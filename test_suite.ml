@@ -209,6 +209,17 @@ let tests = [
             ("a4", "a4 != 1", real_eq_expr 1.);
             ("a5", "a5 != 0", real_eq_expr 0.);
         ]
+    };
+    {
+        name = "tuple2d";
+        env_to_satisfy = [
+            ("v1", "v1 != 1", real_eq_expr 1.);
+            ("v2", "v2 != 2", real_eq_expr 2.);
+            ("v3", "v3 != 20", real_eq_expr 20.);
+            ("v4", "v4 != 0", real_eq_expr 0.);
+            ("v5", "v5 != 1", real_eq_expr 1.);
+            ("v6", "v6 != 32", real_eq_expr 32.);
+        ]
     }
 ]
 

@@ -39,6 +39,7 @@ rule token = parse
     { REAL (float_of_string r)}
   | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
    { IDENT id }
+  | "." { ACCESS_DOT }
   | eof { EOF }
   | _ { failwith (Printf.sprintf "unexpected char at line %d"
         lexbuf.Lexing.lex_curr_p.Lexing.pos_lnum) }

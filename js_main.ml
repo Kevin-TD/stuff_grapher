@@ -38,7 +38,7 @@ let get_new_var_names s =
 
 
 let auto_operator_names = [
-  "if"; "then"; "else"; "fun"; "when"; "for"
+  "if"; "then"; "else"; "fun"; "when"; "for"; "let"; "in"
 ]
 
 let exclude_names = ["e"; "pi"; "sqrt"]
