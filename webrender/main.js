@@ -3,6 +3,10 @@ const list = document.getElementById('block-list')
 const addBtn = document.getElementById('add-btn')
 let blocks = []
 let lastKey = null
+let lastTwoKeys = ""
+
+// note: "int" command called with capital I so "Int".
+// this is due to existing collision with "in" keyword
 
 // only the ones that i care about
 let greekConstants = "alpha beta gamma delta zeta theta kappa lambda xi pi rho sigma tau phi chi psi omega Gamma Delta Theta Lambda Xi Sigma Phi Psi Omega"
@@ -103,7 +107,15 @@ function createBlock(index, focusIt = true) {
       mqField.write('\\quad\\rightarrow\\quad');
     }
 
+    if (e.key === 't' && lastTwoKeys === 'In') {
+      e.preventDefault();
+      mqField.keystroke('Backspace');
+      mqField.keystroke('Backspace');
+      mqField.cmd('\\int');
+    }
+
     if (!["Shift", "Control", "Alt", "Meta"].includes(e.key)) {
+      lastTwoKeys = (lastTwoKeys + e.key).slice(-2);
       lastKey = e.key;
     }
 
@@ -126,6 +138,7 @@ function createBlock(index, focusIt = true) {
       )
 
       console.log(newNamesToAdd)
+      console.log(output)
 
       for (let newVar of newNamesToAdd) {
         if (!newNamesAdded.includes(newVar)) {
@@ -193,6 +206,7 @@ function getCode() {
     for (let block of blocks) {
         let rawLatex = block.latex()
         // operatorname to text hack: if i leave it as operatorname, the mathlive parser will not interpret our custom functions like "if" as a function but as two symbols "i" and "f" so it turns into "i f". in order to prevent this, i wrap it in a text block; this parses text{if} into "if" (including the quotes), keeping the letters together. all that is then left is to remove the quotes with normal regex
+
         let parseableEq = rawLatex
           .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")
           .replace(/\\ne/g, "!=")
@@ -202,7 +216,7 @@ function getCode() {
           if (ident) return `\\text{${ident}}`;
               return match;
           })
-
+        
         parseableEq = 
           MathLive.convertLatexToAsciiMath(parseableEq)
           .replace(/"(.*?)"/g, " $1 ")
