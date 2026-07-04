@@ -12,9 +12,7 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* lists are 1-indexed *)
 (* operators where ints are expected converts float input by removing the decimal part; truncating, not rounding. *)
 
-(* TODO: Fn should be of string list not expr list to make it clear its params *)
 (* TODO: document sgl *)
-(* TODO: error if infinite loop *)
 (* TODO: rename parse_expr to eval_expr? *)
 (* TODO: when building frontend, inverse trig functions should have sugar of sin^-1 and what not *)
 (* TODO: fix resolve all so that we dont need both lookup_full and lookup *)
@@ -186,9 +184,19 @@ and parse_expr (ex : expr) (env : environment) =
     | Some (ExternFn (arity, fn)) -> (
       if not (List.length args = arity) then
          FunctionCallError("mismatch b/w arglen and paramlen", ex)
-      else
-        let parsed_args = List.map (fun arg -> parse_expr arg env) args in 
-        fn parsed_args
+      else (
+        let parsed_args = List.map (fun arg -> parse_expr arg env) args in
+        let has_unresolved = List.exists 
+          (fun expr -> match expr with
+          | Unresolved _ -> true
+          | _ -> false)
+          parsed_args
+        in
+        if has_unresolved then
+          Unresolved ex
+        else
+          fn parsed_args
+      )
     )
     | None -> Unresolved ex
     | Some _ -> UndefinedError [ex]
