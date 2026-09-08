@@ -1,0 +1,20 @@
+(ocamllex lexer)
+(menhir (modules parser))
+
+(library
+  (name latex_parser)
+  (wrapped false)
+  (modules parser lexer ast))
+
+(executable
+  (name main)
+  (modules main)
+  (libraries )
+  (modes native))
+
+(executable
+  (name js_main)
+  (modules js_main)
+  (libraries js_of_ocaml)
+  (preprocess (pps js_of_ocaml-ppx))
+  (modes js))
