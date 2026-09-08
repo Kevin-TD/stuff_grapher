@@ -1,0 +1,3 @@
+v1 = prod(range(1, 10))
+v2 = prod(range(a, 10))
+a = 5

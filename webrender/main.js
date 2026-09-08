@@ -202,28 +202,35 @@ addBtn.addEventListener('click', () => createBlock(blocks.length, true));
 createBlock(0, true);
 
 function getCode() {
-    let codes = []
-    for (let block of blocks) {
-        let rawLatex = block.latex()
-        // operatorname to text hack: if i leave it as operatorname, the mathlive parser will not interpret our custom functions like "if" as a function but as two symbols "i" and "f" so it turns into "i f". in order to prevent this, i wrap it in a text block; this parses text{if} into "if" (including the quotes), keeping the letters together. all that is then left is to remove the quotes with normal regex
+  // i will overhaul this system and just properly parse it instead
 
-        let parseableEq = rawLatex
-          .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")
-          .replace(/\\ne/g, "!=")
-          .replace(/\\leftarrow/g, "<-")
-          .replace(/\\rightarrow/g, "->")
-          .replace(/\\text{[^}]*}|\\[a-zA-Z]+|([a-zA-Z][a-zA-Z0-9_]+)/g, (match, ident) => {
-          if (ident) return `\\text{${ident}}`;
-              return match;
-          })
-        
-        parseableEq = 
-          MathLive.convertLatexToAsciiMath(parseableEq)
-          .replace(/"(.*?)"/g, " $1 ")
-          
-        codes.push(parseableEq)
-    }
-    return codes.join("\n")
+  let codes = []
+  for (let block of blocks) {
+      let rawLatex = block.latex()
+
+      console.log(rawLatex)
+    
+      let parseableEq = rawLatex
+        .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")
+        .replace(/\\ne/g, "!=")
+        .replace(/\\leftarrow/g, "<-")
+        .replace(/\\rightarrow/g, "->")
+        .replace(/\\text{[^}]*}|\\[a-zA-Z]+|([a-zA-Z][a-zA-Z0-9_]+)/g, (match, ident) => {
+        if (ident) return `\\text{${ident}}`;
+            return match;
+        })
+
+      parseableEq = 
+        MathLive.convertLatexToAsciiMath(parseableEq)
+        .replace(/"(.*?)"/g, " $1 ")
+        // remove excess padding from underscored expressions
+        .replace(/([^ ]+) +_/g, "$1_")
+        .replace(/(.*?)_ +(.*?)/g, "$1_$2")
+
+      
+      codes.push(parseableEq)
+  }
+  return codes.join("\n")
 }
 
 let board = JXG.JSXGraph.initBoard(

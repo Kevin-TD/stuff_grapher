@@ -85,6 +85,44 @@ let extern_functions = [
         )
         | _ -> UndefinedError args
     )};
+    {name = "sum"; line = None; value = ExternFn (1, fun args ->
+        let lst_arg = List.nth args 0 in
+        match lst_arg with
+        | ExprList l -> (
+            let exists_non_real = List.exists (fun ex -> match ex with
+            | Real _ -> false
+            | _ -> true) l in
+            if exists_non_real then
+                UndefinedError args
+            else
+                let reals = List.map (fun ex -> match ex with
+                | Real r -> r
+                | _ -> failwith "impossible - sum") l 
+            in 
+            let list_sum = List.fold_left ( +. ) 0. reals in
+            Real list_sum
+        )
+        | _ -> UndefinedError args 
+    )};
+    {name = "prod"; line = None; value = ExternFn (1, fun args ->
+        let lst_arg = List.nth args 0 in
+        match lst_arg with
+        | ExprList l -> (
+            let exists_non_real = List.exists (fun ex -> match ex with
+            | Real _ -> false
+            | _ -> true) l in
+            if exists_non_real then
+                UndefinedError args
+            else
+                let reals = List.map (fun ex -> match ex with
+                | Real r -> r
+                | _ -> failwith "impossible - prod") l 
+            in 
+            let list_prod = List.fold_left ( *. ) 1. reals in
+            Real list_prod
+        )
+        | _ -> UndefinedError args 
+    )};
 ]
 
 let env = constants @ extern_functions
