@@ -96,11 +96,9 @@ expr:
   { AccessAttr(e, attr) }
 
 expr_list_elems:
-  | /* empty */ { [] }
   | xs = separated_list(COMMA, expr) { xs }
 
 ident_list:
-  | /* empty */ { [] }
   | xs = separated_list(COMMA, ident_expr) { xs }
 
 ident_expr:
