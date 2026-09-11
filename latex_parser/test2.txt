@@ -1,0 +1,1 @@
+\operatorname{fact}\left(x\right)=\operatorname{if}x=1\operatorname{then}1\operatorname{else}x\cdot\operatorname{fact}\left(x-1\right)

@@ -9,12 +9,12 @@
 (executable
   (name main)
   (modules main)
-  (libraries )
+  (libraries latex_parser)
   (modes native))
 
 (executable
   (name js_main)
   (modules js_main)
-  (libraries js_of_ocaml)
+  (libraries latex_parser js_of_ocaml)
   (preprocess (pps js_of_ocaml-ppx))
   (modes js))
