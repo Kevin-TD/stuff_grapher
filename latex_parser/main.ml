@@ -21,6 +21,8 @@ let () =
     if tok <> Parser.EOF then loop ()
   in loop ()
 
+(* TODO? automatically generate parser rules for operatornames *)
+
 let parse_input filename =
   let lexbuf = Lexing.from_channel (open_in filename) 
   in
