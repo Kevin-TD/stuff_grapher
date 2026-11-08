@@ -1,4 +1,4 @@
-v1 = sum(range(1, 10))
-v2 = sum(range(a, 10))
+v1 = summation(range(1, 10))
+v2 = summation(range(a, 10))
 a = 5
-v3 = sum([5*n + 10 for n = range(1, 10)]) # equals 375
+v3 = summation([5*n + 10 for n = range(1, 10)]) # equals 375

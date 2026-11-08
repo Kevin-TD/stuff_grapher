@@ -85,7 +85,7 @@ let extern_functions = [
         )
         | _ -> UndefinedError args
     )};
-    {name = "sum"; line = None; value = ExternFn (1, fun args ->
+    {name = "summation"; line = None; value = ExternFn (1, fun args ->
         let lst_arg = List.nth args 0 in
         match lst_arg with
         | ExprList l -> (
@@ -97,14 +97,14 @@ let extern_functions = [
             else
                 let reals = List.map (fun ex -> match ex with
                 | Real r -> r
-                | _ -> failwith "impossible - sum") l 
+                | _ -> failwith "impossible - summation") l 
             in 
             let list_sum = List.fold_left ( +. ) 0. reals in
             Real list_sum
         )
         | _ -> UndefinedError args 
     )};
-    {name = "prod"; line = None; value = ExternFn (1, fun args ->
+    {name = "product"; line = None; value = ExternFn (1, fun args ->
         let lst_arg = List.nth args 0 in
         match lst_arg with
         | ExprList l -> (
@@ -116,7 +116,7 @@ let extern_functions = [
             else
                 let reals = List.map (fun ex -> match ex with
                 | Real r -> r
-                | _ -> failwith "impossible - prod") l 
+                | _ -> failwith "impossible - product") l 
             in 
             let list_prod = List.fold_left ( *. ) 1. reals in
             Real list_prod
