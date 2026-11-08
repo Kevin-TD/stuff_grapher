@@ -207,7 +207,7 @@ function getCode() {
         let rawLatex = block.latex()
         // operatorname to text hack: if i leave it as operatorname, the mathlive parser will not interpret our custom functions like "if" as a function but as two symbols "i" and "f" so it turns into "i f". in order to prevent this, i wrap it in a text block; this parses text{if} into "if" (including the quotes), keeping the letters together. all that is then left is to remove the quotes with normal regex
 
-        console.log(rawLatex)
+        console.log("raw latex:", rawLatex)
 
         let parseableEq = rawLatex
           .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")

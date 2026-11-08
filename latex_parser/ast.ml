@@ -39,14 +39,14 @@ let rec string_of_stmt (s : stmt) = match s with
     List.iter (fun s -> lst := ("{" ^ string_of_stmt s ^ "}") :: !lst) args;
     lst := List.rev !lst;
     let els = String.concat "" !lst in
-    "LatexFunctionCall(" ^ name ^ ", " ^ els ^ ")"
+    "FunctionCall(" ^ name ^ ", " ^ els ^ ")"
   )
   | UserFunctionCall (name, args) -> (
     let lst = ref [] in
     List.iter (fun s -> lst :=  string_of_stmt s :: !lst) args;
     lst := List.rev !lst;
     let els = String.concat ", " !lst in
-    "UserFunctionCall(" ^ name ^ ", " ^ els ^ ")"
+    "FunctionCall(" ^ name ^ ", " ^ els ^ ")"
   )
   | Number n -> "Number(" ^ n ^ ")"
   | Assign (s1, s2) -> "Assign(" ^ string_of_stmt s1 ^ ", " ^ string_of_stmt s2 ^ ")"
@@ -88,5 +88,5 @@ let rec string_of_stmt (s : stmt) = match s with
     string_of_stmt superscript ^ ", " ^ string_of_stmt body ^ ")"
   )
 
-  let print_prog (p : prog) =
-    List.iter (fun e -> print_endline (string_of_stmt e)) p
+let print_prog (p : prog) =
+  List.iter (fun e -> print_endline (string_of_stmt e)) p

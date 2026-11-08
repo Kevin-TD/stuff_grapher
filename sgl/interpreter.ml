@@ -26,6 +26,7 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: frontend lists of just reals have output visible to the user *)
 (* TODO: frontend more user friendly error msgs *)
 (* TODO: frontend ability to drag around boxes *)
+(* TODO: and, or not?? not sure why i did not impl this sooner *)
 
 (** allows unresolved types to return from lookup *)
 let lookup_full (var_name : string) (env : environment) = 
