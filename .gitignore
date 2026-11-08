@@ -1,4 +1,4 @@
 _build
 graphtests
 test/env/playground.sgl
-*.DS_STORE
+*.DS_Store
