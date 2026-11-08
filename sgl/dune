@@ -1,5 +1,6 @@
 (ocamllex lexer)
 (menhir (modules parser))
+(dirs :standard \ latex_parser)
 
 (library
   (name sgl)
