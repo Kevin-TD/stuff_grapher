@@ -13,7 +13,7 @@ let mkpos (startpos : Lexing.position) =
 %token EOF
 %token PLUS
 %token MINUS
-%token MULT
+%token MUL
 %token DIV
 %token EXP
 %token LEFT_SQR_BRACKET
@@ -31,7 +31,7 @@ let mkpos (startpos : Lexing.position) =
 %token ACCESS_DOT
 
 %left PLUS MINUS
-%left MULT DIV
+%left MUL DIV
 %right UMINUS UPLUS
 %right EXP
 
@@ -65,7 +65,7 @@ expr:
   | id = IDENT { Ident id }
   | e1 = expr PLUS e2 = expr { Plus(e1, e2) }
   | e1 = expr MINUS e2 = expr { Minus(e1, e2) }
-  | e1 = expr MULT e2 = expr { Mult(e1, e2) }
+  | e1 = expr MUL e2 = expr { Mul(e1, e2) }
   | e1 = expr DIV e2 = expr { Div(e1, e2) }
   | e1 = expr EXP e2 = expr { Exp(e1, e2) } 
   | MINUS e = expr %prec UMINUS { Neg e }

@@ -86,7 +86,7 @@ and parse_expr (ex : expr) (env : environment) =
     | _, UndefinedError err -> UndefinedError (e :: err)
     | _, _ -> UndefinedError [e]
   )
-  | Mult (e1, e2) as e -> (
+  | Mul (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
     | Real r1, Real r2 -> Real (r1 *. r2)
     | Unresolved _, _
@@ -331,7 +331,7 @@ let rec find_unresolved (e : expr) (env : environment) = match e with
   | Real _ | True | False | Fn _ | ExternFn _ 
   | UndefinedError _ | IndexOutOfBoundsError _ | FunctionCallError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
-  | Plus (e1, e2) | Minus (e1, e2) | Mult (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
+  | Plus (e1, e2) | Minus (e1, e2) | Mul (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)
   | Lte (e1, e2) | NotEqual (e1, e2) | IndexOf (e1, e2)  -> (
     find_unresolved e1 env @ find_unresolved e2 env

@@ -5,7 +5,7 @@ type expr =
   | Ident of string
   | Plus of expr * expr
   | Minus of expr * expr
-  | Mult of expr * expr
+  | Mul of expr * expr
   | Div of expr * expr
   | Exp of expr * expr
   | Neg of expr
@@ -58,7 +58,7 @@ let rec string_of_expr = function
   | Plus (e1, e2) -> "Plus(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | Minus (e1, e2) -> "Minus(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | Neg e -> "Neg(" ^ string_of_expr e ^ ")"
-  | Mult (e1, e2) -> "Mult(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
+  | Mul (e1, e2) -> "Mul(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | Div (e1, e2) -> "Div(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | Exp (e1, e2) -> "Exp(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"
   | Compare (e1, e2) -> "Compare(" ^ string_of_expr e1 ^ ", " ^ string_of_expr e2 ^ ")"

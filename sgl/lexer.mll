@@ -10,7 +10,7 @@ rule token = parse
   | '=' { EQUAL }
   | '+' { PLUS }
   | '-' { MINUS }
-  | '*' { MULT }
+  | '*' { MUL }
   | '/' { DIV }
   | '^' { EXP }
   | '[' { LEFT_SQR_BRACKET }
