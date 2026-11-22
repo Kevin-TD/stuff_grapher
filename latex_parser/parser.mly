@@ -72,6 +72,7 @@ stmt:
   { If_else(s1, s2, s3) }
   | f = FUNCTION args = arg_list { LatexFunctionCall(f, args)}
   | f = FUNCTION SUBSCRIPT subscript = braced_stmt superscript = SUPERSCRIPT_ONE body = stmt {OpCall3 (f, subscript, Ident superscript, body)}
+  | f = FUNCTION SUBSCRIPT subscript = braced_stmt SUPERSCRIPT s = braced_stmt body = stmt {OpCall3 (f, subscript, s, body)}
 
   | LEFT_PAREN stmts = stmt_list RIGHT_PAREN { NTuple (stmts) }
   | LEFT_SQUARE_BRACKET stmts = stmt_list RIGHT_SQUARE_BRACKET

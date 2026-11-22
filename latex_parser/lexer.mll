@@ -51,6 +51,6 @@ rule token = parse
     | "else" { ELSE }
     | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
     { IDENT id }
-    | '\\' (['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9']* as id) { FUNCTION id }
+    | '\\' (['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z']* as id) { FUNCTION id }
     | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c)}
     | '_' { SUBSCRIPT }
