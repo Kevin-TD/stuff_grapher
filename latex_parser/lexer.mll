@@ -2,7 +2,7 @@
     open Parser
 }
 
-rule token = parse 
+rule token = parse
     | [' ' '\t'] { token lexbuf }
     | '#' [^ '\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }
     | '#' [^ '\n']* eof   { token lexbuf }
@@ -12,8 +12,9 @@ rule token = parse
     | '=' { EQUAL }
     | '-' { MINUS }
     | '+' { PLUS }
-    | '*'
+    | '*' { MUL }
     | "\\cdot" { MUL }
+    | '/' { DIV }
     | "\\operatorname" { OPERATOR_NAME }
     | "\\operatorname{if}" { IF }
     | "\\operatorname{then}" { THEN }
@@ -33,6 +34,9 @@ rule token = parse
     | "\\rightarrow" { RIGHT_ARROW }
     | "\\leftarrow" { LEFT_ARROW }
     | "\\ne" { NE }
+    | "\\neq" { NE }
+    | "\\le" { LTE }
+    | "\\ge" { GTE }
     | '^' ([^ '{'] as c) { SUPERSCRIPT_ONE (String.make 1 c) }
     | '^' { SUPERSCRIPT }
     | '<' { LT }
@@ -42,15 +46,14 @@ rule token = parse
     | ':' { COLON }
     | ',' { COMMA }
     | '.' { ACCESS_DOT }
-    | ['0'-'9']+ as r (* i am STILL lazy *)
-    { NUMBER r  }
-    | ['0'-'9']+ '.'? ['0'-'9']+ as r
-        { NUMBER r}
-    | "if" { IF }
-    | "then" { THEN }
-    | "else" { ELSE }
-    | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
-    { IDENT id }
+    | ['0'-'9']+ as r { NUMBER r }
+    | ['0'-'9']+ '.'? ['0'-'9']+ as r { NUMBER r }
+    | "\\operatorname{for}" { FOR }
+    | "\\operatorname{when}" { WHEN }
+    | "\\operatorname{let}" { LET }
+    | "\\operatorname{in}" { IN }
+    | "\\operatorname{fun}" { FUN }
+    | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id { IDENT id }
     | '\\' (['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z']* as id) { FUNCTION id }
-    | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c)}
+    | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c) }
     | '_' { SUBSCRIPT }

@@ -1,60 +1,76 @@
 open Js_of_ocaml
 open Ast
-open Printexc
 
-let rec to_sgl (s : stmt) : string =
+let rec split_assign (s : stmt) : (string * stmt) option =
+  let lift f l = match split_assign l with
+    | Some (v, e) -> Some (v, f e)
+    | None -> None in
+  match s with
+  | Assign (Ident v, e) -> Some (v, e)
+  | Plus (l, r)  -> lift (fun a -> Plus (a, r)) l
+  | Minus (l, r) -> lift (fun a -> Minus (a, r)) l
+  | Mul (l, r)   -> lift (fun a -> Mul (a, r)) l
+  | Div (l, r)   -> lift (fun a -> Div (a, r)) l
+  | _ -> None
+
+let rec sgl_of_latex (s : stmt) : string =
   match s with
   | Ident s -> s
   | Number n -> n
-  | Plus (s1, s2) -> to_sgl s1 ^ " + " ^ to_sgl s2
-  | Minus (s1, s2) -> to_sgl s1 ^ " - " ^ to_sgl s2
-  | Mul (s1, s2) -> to_sgl s1 ^ " * " ^ to_sgl s2
-  | Lt (s1, s2) -> to_sgl s1 ^ " < " ^ to_sgl s2
-  | Gt (s1, s2) -> to_sgl s1 ^ " > " ^ to_sgl s2
-  | Lte (s1, s2) -> to_sgl s1 ^ " <= " ^ to_sgl s2
-  | Gte (s1, s2) -> to_sgl s1 ^ " >= " ^ to_sgl s2
-  | Ne (s1, s2) -> to_sgl s1 ^ " != " ^ to_sgl s2
-  | If_else (cond, then_branch, else_branch) ->
-      "if " ^ to_sgl cond ^ " then " ^ to_sgl then_branch ^ " else " ^ to_sgl else_branch
-  | List (ss) -> "[" ^ String.concat ", " (List.map to_sgl ss) ^ "]"
-  | NTuple (ss) -> "(" ^ String.concat ", " (List.map to_sgl ss) ^ ")"
-  | AccessAttr (s1, s2) -> to_sgl s1 ^ "." ^ to_sgl s2
+  | Plus (s1, s2) -> sgl_of_latex s1 ^ " + " ^ sgl_of_latex s2
+  | Minus (s1, s2) -> sgl_of_latex s1 ^ " - " ^ sgl_of_latex s2
+  | Mul (s1, s2) -> sgl_of_latex s1 ^ " * " ^ sgl_of_latex s2
+  | Div (s1, s2) -> sgl_of_latex s1 ^ " / " ^ sgl_of_latex s2
+  | Neg s -> "-" ^ sgl_of_latex s
+  | Lt (s1, s2) -> sgl_of_latex s1 ^ " < " ^ sgl_of_latex s2
+  | Gt (s1, s2) -> sgl_of_latex s1 ^ " > " ^ sgl_of_latex s2
+  | Lte (s1, s2) -> sgl_of_latex s1 ^ " <= " ^ sgl_of_latex s2
+  | Gte (s1, s2) -> sgl_of_latex s1 ^ " >= " ^ sgl_of_latex s2
+  | Ne (s1, s2) -> sgl_of_latex s1 ^ " != " ^ sgl_of_latex s2
+  | If_else (cond, t, e) ->
+      "if " ^ sgl_of_latex cond ^ " then " ^ sgl_of_latex t ^ " else " ^ sgl_of_latex e
+  | List ss -> "[" ^ String.concat ", " (List.map sgl_of_latex ss) ^ "]"
+  | NTuple ss -> "(" ^ String.concat ", " (List.map sgl_of_latex ss) ^ ")"
+  | AccessAttr (s1, s2) -> sgl_of_latex s1 ^ "." ^ sgl_of_latex s2
   | UserFunctionCall (name, args) ->
-      name ^ "(" ^ String.concat ", " (List.map to_sgl args) ^ ")"
+      name ^ "(" ^ String.concat ", " (List.map sgl_of_latex args) ^ ")"
   | LatexFunctionCall (name, args) ->
-      name ^ "(" ^ String.concat ", " (List.map to_sgl args) ^ ")"
-  | OperatorCall (s, stmt) -> s ^ "(" ^ to_sgl stmt ^ ")"
-  | Assign (s1, s2) ->
-      (match s1 with
-       | Ident x -> x ^ " = " ^ to_sgl s2
-       | UserFunctionCall (name, args) ->
-           name ^ "(" ^ String.concat ", " (List.map to_sgl args) ^ ") = " ^ to_sgl s2
-       | _ -> to_sgl s1 ^ " = " ^ to_sgl s2)
-  | OpCall3 (name, subscript, superscript, body) -> op_call3_to_sgl name subscript superscript body
+      name ^ "(" ^ String.concat ", " (List.map sgl_of_latex args) ^ ")"
+  | OperatorCall (s, stmt) -> s ^ "(" ^ sgl_of_latex stmt ^ ")"
+  | Assign (s1, s2) -> sgl_of_latex s1 ^ " = " ^ sgl_of_latex s2
+  | Exp (a, b) -> sgl_of_latex a ^ " ^ " ^ sgl_of_latex b
+  | Index (a, i) -> sgl_of_latex a ^ "[" ^ sgl_of_latex i ^ "]"
+  | ListComp (o, v, l) ->
+      "[" ^ sgl_of_latex o ^ " for " ^ v ^ " = " ^ sgl_of_latex l ^ "]"
+  | ListCompFilter (o, c, v, l) ->
+      "[" ^ sgl_of_latex o ^ " when " ^ sgl_of_latex c ^ " for " ^ v ^ " = " ^ sgl_of_latex l ^ "]"
+  | LetIn (v, a, b) -> "let " ^ v ^ " = " ^ sgl_of_latex a ^ " in " ^ sgl_of_latex b
+  | Fn ([Ident p], b) -> "fun " ^ p ^ " -> " ^ sgl_of_latex b
+  | Fn (ps, b) ->
+      "fun (" ^ String.concat ", " (List.map sgl_of_latex ps) ^ ") -> " ^ sgl_of_latex b
+  | OpCall3 (name, subscript, superscript, body) ->
+      op_call3_to_sgl name subscript superscript body
 
 and op_call3_to_sgl name subscript superscript body =
-  let subscript_str = to_sgl subscript in
-  let superscript_str = to_sgl superscript in
-  let body_str = to_sgl body in
-  (match name, subscript with
-   | "sum", Assign (Ident var, Number start) ->
-       (match superscript with
-        | Number end_ ->
-            "summation([" ^ body_str ^ " for " ^ var ^ " = range(" ^ start ^ ", " ^ end_ ^ ")])"
-        | _ ->
-            "summation([" ^ body_str ^ " for " ^ var ^ " = range(" ^ start ^ ", " ^ superscript_str ^ ")])")
-   | "sum", _ ->
-       "summation([" ^ body_str ^ " for _ = range(1, " ^ superscript_str ^ ")])"
-   | _ -> name ^ "_{" ^ subscript_str ^ "}^{" ^ superscript_str ^ "}")
+  let body_str = sgl_of_latex body in
+  match name, split_assign subscript with
+  | "sum", Some (var, start) ->
+      "summation([" ^ body_str ^ " for " ^ var ^ " = range("
+      ^ sgl_of_latex start ^ ", " ^ sgl_of_latex superscript ^ ")])"
+  | "prod", Some (var, start) ->
+      "product([" ^ body_str ^ " for " ^ var ^ " = range("
+      ^ sgl_of_latex start ^ ", " ^ sgl_of_latex superscript ^ ")])"
+  | _ -> failwith ("unsupported big operator: " ^ name)
 
 let latex_to_sgl (input : string) : string =
   let result =
-    try
-      Ok (Interpreter.parse_input (Interpreter.String input))
-    with exn -> Error (to_string exn)
+    try Ok (Interpreter.parse_input (Interpreter.String input))
+    with exn -> Error (Printexc.to_string exn)
   in
   match result with
-  | Ok prog -> String.concat "\n" (List.map to_sgl prog)
+  | Ok prog ->
+      (try String.concat "\n" (List.map sgl_of_latex prog)
+       with Failure msg -> "Error: " ^ msg)
   | Error msg -> "Error: " ^ msg
 
 let () =

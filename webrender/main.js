@@ -206,27 +206,12 @@ function getCode() {
     for (let block of blocks) {
         let rawLatex = block.latex()
 
-        
         console.log("raw latex:", rawLatex)
 
-        let testConversion = LatexParser.latexToSgl(rawLatex)
-        console.log("test conversion:", testConversion)
-
-        let parseableEq = rawLatex
-          .replace(/\\operatorname{(.*?)}/g, "\\text{$1}")
-          .replace(/\\ne/g, "!=")
-          .replace(/\\leftarrow/g, "<-")
-          .replace(/\\rightarrow/g, "->")
-          .replace(/\\text{[^}]*}|\\[a-zA-Z]+|([a-zA-Z][a-zA-Z0-9_]+)/g, (match, ident) => {
-          if (ident) return `\\text{${ident}}`;
-              return match;
-          })
-        
-        parseableEq = 
-          MathLive.convertLatexToAsciiMath(parseableEq)
-          .replace(/"(.*?)"/g, " $1 ")
+        let sglConversion = LatexParser.latexToSgl(rawLatex)
+        console.log("sglConversion:", sglConversion)
           
-        codes.push(parseableEq)
+        codes.push(sglConversion)
     }
     return codes.join("\n")
 }

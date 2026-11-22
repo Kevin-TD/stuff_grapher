@@ -9,6 +9,8 @@ type stmt =
   | Plus of stmt * stmt
   | Minus of stmt * stmt
   | Mul of stmt * stmt
+  | Div of stmt * stmt
+  | Neg of stmt
   | Lt of stmt * stmt
   | Gt of stmt * stmt
   | Lte of stmt * stmt
@@ -25,6 +27,12 @@ type stmt =
   (* a call to a function that has a subscript, superscript,
   and body  *)
   | OpCall3 of string * stmt * stmt * stmt
+  | Exp of stmt * stmt
+  | Index of stmt * stmt
+  | ListComp of stmt * string * stmt
+  | ListCompFilter of stmt * stmt * string * stmt
+  | LetIn of string * stmt * stmt
+  | Fn of stmt list * stmt
 
 (* how to differentiate compare = and assign = ... we'll see if it matters *)
 (* list comp ... *)
@@ -56,6 +64,9 @@ let rec string_of_stmt (s : stmt) = match s with
     "Minus(" ^ string_of_stmt s1 ^ ", " ^ string_of_stmt s2 ^ ")"
   | Mul (s1, s2) -> 
     "Mul(" ^ string_of_stmt s1 ^ ", " ^ string_of_stmt s2 ^ ")"
+  | Div (s1, s2) -> 
+    "Div(" ^ string_of_stmt s1 ^ ", " ^ string_of_stmt s2 ^ ")"
+  | Neg s -> "Neg(" ^ string_of_stmt s ^ ")"
   | Lt (s1, s2) -> 
     "Lt(" ^ string_of_stmt s1 ^ ", " ^ string_of_stmt s2 ^ ")"
   | Gt (s1, s2) -> 
@@ -87,6 +98,18 @@ let rec string_of_stmt (s : stmt) = match s with
     "OpCall3(" ^ name ^ ", " ^ string_of_stmt subscript ^ ", " ^
     string_of_stmt superscript ^ ", " ^ string_of_stmt body ^ ")"
   )
+  | Exp (s1, s2) ->
+    "Exp(" ^ string_of_stmt s1 ^ ", " ^ string_of_stmt s2 ^ ")"
+  | Index (s1, s2) ->
+    "Index(" ^ string_of_stmt s1 ^ ", " ^ string_of_stmt s2 ^ ")"
+  | ListComp (o, v, l) ->
+    "ListComp(" ^ string_of_stmt o ^ ", " ^ v ^ ", " ^ string_of_stmt l ^ ")"
+  | ListCompFilter (o, c, v, l) ->
+    "ListCompFilter(" ^ string_of_stmt o ^ ", " ^ string_of_stmt c ^ ", " ^ v ^ ", " ^ string_of_stmt l ^ ")"
+  | LetIn (v, a, b) ->
+    "LetIn(" ^ v ^ ", " ^ string_of_stmt a ^ ", " ^ string_of_stmt b ^ ")"
+  | Fn (ps, b) ->
+    "Fn([" ^ String.concat ", " (List.map string_of_stmt ps) ^ "], " ^ string_of_stmt b ^ ")"
 
 let print_prog (p : prog) =
   List.iter (fun e -> print_endline (string_of_stmt e)) p
