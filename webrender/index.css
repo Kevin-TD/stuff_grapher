@@ -74,12 +74,13 @@ body {
 }
 
 .block-result {
+  font-family: Symbola, "Times New Roman", serif;
   position: absolute;
   bottom: 0;
   right: 0;
   background: #f0f0f0;
   color: #333;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   padding: 2px 8px;
   border-top: 1px solid #ccc;
   border-left: 1px solid #ccc;

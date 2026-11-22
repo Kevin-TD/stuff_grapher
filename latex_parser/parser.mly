@@ -5,6 +5,7 @@
 %token <string> IDENT
 %token <string> FUNCTION
 %token <string> NUMBER
+%token <string> GREEK
 %token OPERATOR_NAME
 %token EQUAL
 %token NEWLINE
@@ -94,6 +95,7 @@ stmt:
   | LEFT_PAREN stmts = stmt_list RIGHT_PAREN { NTuple (stmts) }
   | LEFT_SQUARE_BRACKET stmts = stmt_list RIGHT_SQUARE_BRACKET { List (stmts) }
   | s = stmt ACCESS_DOT attr = stmt { AccessAttr(s, attr) }
+  | g = GREEK { Ident g }
 
 stmt_list:
   | xs = separated_list(COMMA, stmt) { xs }

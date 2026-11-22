@@ -1,5 +1,15 @@
 {
     open Parser
+
+    let greek : (string, unit) Hashtbl.t = Hashtbl.create 64
+    let () =
+      List.iter (fun g -> Hashtbl.replace greek g ())
+        [ "alpha"; "beta"; "gamma"; "delta"; "epsilon"; "varepsilon"; "zeta";
+          "eta"; "theta"; "vartheta"; "iota"; "kappa"; "lambda"; "mu"; "nu";
+          "xi"; "omicron"; "pi"; "varpi"; "rho"; "varrho"; "sigma"; "varsigma";
+          "tau"; "upsilon"; "phi"; "varphi"; "chi"; "psi"; "omega";
+          "Gamma"; "Delta"; "Theta"; "Lambda"; "Xi"; "Pi"; "Sigma";
+          "Upsilon"; "Phi"; "Psi"; "Omega" ]
 }
 
 rule token = parse
@@ -54,6 +64,7 @@ rule token = parse
     | "\\operatorname{in}" { IN }
     | "\\operatorname{fun}" { FUN }
     | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id { IDENT id }
-    | '\\' (['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z']* as id) { FUNCTION id }
+    | '\\' (['A'-'Z' 'a'-'z']+ as id)
+    { if Hashtbl.mem greek id then GREEK id else FUNCTION id }
     | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c) }
     | '_' { SUBSCRIPT }
