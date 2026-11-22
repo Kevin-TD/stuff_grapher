@@ -7,7 +7,7 @@ Stuff Grapher Language (SGL) *)
 (* statements can be in any order *)
 (* main difference, main reason why i made it, is cuz desmos doesnt allow
 parameters to be functions. here, because everything is lazy, we can do that!
-type checking isnt very strong but it allows me to easily implement that.  *)
+type checking snt very strong but it allows me to easily implement that.  *)
 (* additionally: *)
 (* lists are 1-indexed *)
 (* operators where ints are expected converts float input by removing the decimal part; truncating, not rounding. *)
@@ -15,7 +15,6 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: document sgl *)
 (* TODO: rename parse_expr to eval_expr? *)
 (* TODO: when building frontend, inverse trig functions should have sugar of sin^-1 and what not *)
-(* TODO: fix resolve all so that we dont need both lookup_full and lookup *)
 (* TODO: add factorial builtin *)
 (* TODO: improve errors for when externfn calls error  *)
 (* TODO: points *)
@@ -27,12 +26,6 @@ type checking isnt very strong but it allows me to easily implement that.  *)
 (* TODO: frontend more user friendly error msgs *)
 (* TODO: frontend ability to drag around boxes *)
 (* TODO: and, or not?? not sure why i did not impl this sooner *)
-
-(** allows unresolved types to return from lookup *)
-let lookup_full (var_name : string) (env : environment) = 
-  match List.find_opt (fun x -> x.name = var_name) env with
-  | Some v -> Some v.value
-  | None -> None
 
 let lookup (var_name : string) (env : environment) = 
   match List.find_opt (fun x -> x.name = var_name) env with

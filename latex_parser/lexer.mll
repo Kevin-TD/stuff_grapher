@@ -11,19 +11,25 @@ rule token = parse
     | eof { EOF }
     | '=' { EQUAL }
     | '-' { MINUS }
+    | '+' { PLUS }
+    | '*'
+    | "\\cdot" { MUL }
     | "\\operatorname" { OPERATOR_NAME }
     | "\\operatorname{if}" { IF }
     | "\\operatorname{then}" { THEN }
     | "\\operatorname{else}" { ELSE }
-    | "\\cdot" { MUL }
     | "\\left(" { LEFT_PAREN }
     | "\\right)" { RIGHT_PAREN }
+    | '(' { LEFT_PAREN }
+    | ')' { RIGHT_PAREN }
     | "\\left{" { LEFT_CURLY_BRACE }
     | "\\right}" { RIGHT_CURLY_BRACE }
     | '{' { LEFT_CURLY_BRACE }
     | '}' { RIGHT_CURLY_BRACE }
     | "\\left[" { LEFT_SQUARE_BRACKET }
     | "\\right]" { RIGHT_SQUARE_BRACKET }
+    | '[' { LEFT_SQUARE_BRACKET }
+    | ']' { RIGHT_SQUARE_BRACKET }
     | "\\rightarrow" { RIGHT_ARROW }
     | "\\leftarrow" { LEFT_ARROW }
     | "\\ne" { NE }
@@ -40,9 +46,11 @@ rule token = parse
     { NUMBER r  }
     | ['0'-'9']+ '.'? ['0'-'9']+ as r
         { NUMBER r}
+    | "if" { IF }
+    | "then" { THEN }
+    | "else" { ELSE }
     | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id
     { IDENT id }
     | '\\' (['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9']* as id) { FUNCTION id }
     | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c)}
     | '_' { SUBSCRIPT }
-

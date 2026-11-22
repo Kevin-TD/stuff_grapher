@@ -1,6 +1,3 @@
-(* dune build --profile release *)
-(* output file _build/default/js_main.bc.js *)
-
 open Js_of_ocaml
 open Ast
 
