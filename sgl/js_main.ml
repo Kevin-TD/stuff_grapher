@@ -1,12 +1,15 @@
 open Js_of_ocaml
 open Ast
 
-let string_of_expr_frontend = function
-  | Real r -> (
-    if r = floor r then
-      string_of_int (int_of_float r)
+let rec string_of_expr_frontend = function
+  | Real r -> Printf.sprintf "%.8g" r
+  | ExprList l -> (
+    if List.for_all (function Real _ -> true | _ -> false) l then (
+      let nums = List.map string_of_expr_frontend l in
+      "[" ^ String.concat ", " nums ^ "]"
+    )
     else
-      string_of_float r
+      ""
   )
   | _ -> ""
   

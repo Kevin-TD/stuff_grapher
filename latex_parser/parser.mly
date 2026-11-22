@@ -102,4 +102,4 @@ braced_stmt:
   | LEFT_CURLY_BRACE s = stmt RIGHT_CURLY_BRACE { s }
 
 arg_list:
-  | xs = separated_nonempty_list(COMMA, braced_stmt) { xs }
+  | xs = nonempty_list(braced_stmt) { xs }

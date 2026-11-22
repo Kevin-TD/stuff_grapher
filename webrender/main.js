@@ -208,7 +208,7 @@ function getCode() {
 
         console.log("raw latex:", rawLatex)
 
-        let sglConversion = LatexParser.latexToSgl(rawLatex)
+        let sglConversion = LP.latexToSgl(rawLatex)
         console.log("sglConversion:", sglConversion)
           
         codes.push(sglConversion)
