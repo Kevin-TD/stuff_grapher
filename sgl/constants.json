@@ -36,7 +36,8 @@
         "when",
         "for",
         "let",
-        "in"
+        "in",
+        "sqrt"
     ],
     "exclude_names": [
         "e",

@@ -25,10 +25,6 @@ rule token = parse
     | '*' { MUL }
     | "\\cdot" { MUL }
     | '/' { DIV }
-    | "\\operatorname" { OPERATOR_NAME }
-    | "\\operatorname{if}" { IF }
-    | "\\operatorname{then}" { THEN }
-    | "\\operatorname{else}" { ELSE }
     | "\\left(" { LEFT_PAREN }
     | "\\right)" { RIGHT_PAREN }
     | '(' { LEFT_PAREN }
@@ -58,13 +54,20 @@ rule token = parse
     | '.' { ACCESS_DOT }
     | ['0'-'9']+ as r { NUMBER r }
     | ['0'-'9']+ '.'? ['0'-'9']+ as r { NUMBER r }
+    | "\\operatorname" { OPERATOR_NAME }
+    | "\\operatorname{if}" { IF }
+    | "\\operatorname{then}" { THEN }
+    | "\\operatorname{else}" { ELSE }
     | "\\operatorname{for}" { FOR }
     | "\\operatorname{when}" { WHEN }
     | "\\operatorname{let}" { LET }
     | "\\operatorname{in}" { IN }
     | "\\operatorname{fun}" { FUN }
     | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id { IDENT id }
-    | '\\' (['A'-'Z' 'a'-'z']+ as id)
-    { if Hashtbl.mem greek id then IDENT id else FUNCTION id }
+    | '\\' (['A'-'Z' 'a'-'z']+ as g) '_' (['A'-'Z' 'a'-'z' '0'-'9']+ as s)
+      { if Hashtbl.mem greek g then IDENT (g ^ "_" ^ s)
+        else failwith ("unexpected subscript on \\" ^ g) }
+    | '\\' (['A'-'Z' 'a'-'z']+ as g)
+      { if Hashtbl.mem greek g then IDENT g else FUNCTION g }
     | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c) }
     | '_' { SUBSCRIPT }

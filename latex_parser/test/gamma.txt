@@ -1,0 +1,1 @@
+\Gamma \left(n\right)=\operatorname{if}n=1\operatorname{then}n\operatorname{else}n\cdot \Gamma \left(n-1\right)

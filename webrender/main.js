@@ -128,7 +128,7 @@ function createBlock(index, focusIt = true) {
         x.length > 1 && 
         !namesToEmbolden.split(" ").includes(x) &&
         !allAutoCommands.split(" ").includes(x) &&
-        !greekConstants.split(" ").includes(x.split("_")[0]) &&
+        !SGL.greekConstants().split(" ").includes(x.split("_")[0]) &&
         !newNamesAdded.includes(x)
       )
 
