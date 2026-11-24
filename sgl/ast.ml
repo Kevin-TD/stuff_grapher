@@ -32,7 +32,8 @@ type expr =
   note: a user can reference an ExternFn by its name (e.g., "sqrt") but cannot create a value of that type. *)
   | UndefinedError of expr list
   | IndexOutOfBoundsError of expr
-  | FunctionCallError of (string * expr)
+  (* (error_msg, expr) *)
+  | ValueError of (string * expr) list
   | True
   | False 
   | Unresolved of expr
@@ -87,8 +88,11 @@ let rec string_of_expr = function
     "UndefinedError(" ^ string_of_expr (ExprList l) ^ ")"
   | IndexOutOfBoundsError e ->
     "IndexOutOfBoundsError(" ^ string_of_expr e ^ ")"
-  | FunctionCallError (msg, e) -> 
-    "FunctionCallError(" ^ msg ^ ", " ^ string_of_expr e ^ ")"
+  | ValueError msg_errs -> (
+    let msgs = List.map (fun (msg, ex) -> msg ^ ": " ^ string_of_expr ex) msg_errs in
+    let msgs = "[" ^ String.concat ", " msgs ^ "]" in
+    "ValueError(" ^ msgs ^ ")"
+  )
   | ExternFn (arity, _) -> "ExternFn(" ^ string_of_int arity ^ ", ...)"
   | ListComp (e, s, l) -> "ListComp(" ^ string_of_expr e ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"
   | ListCompFilter (e, f, s, l) -> "ListCompFilter(" ^ string_of_expr e ^ ", " ^ string_of_expr f ^ ", " ^ s ^ ", " ^ string_of_expr l ^ ")"

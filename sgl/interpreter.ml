@@ -56,7 +56,7 @@ and parse_expr (ex : expr) (env : environment) =
   | Real _ as n -> n
   | True | False as b -> b
   | UndefinedError _ | IndexOutOfBoundsError _ 
-  | FunctionCallError _ as err -> err
+  | ValueError _ as err -> err
   | Unresolved _ as unres -> unres
   | Fn _ | ExternFn _ as f -> f
   | Ident x as id -> (match lookup x env with
@@ -70,7 +70,7 @@ and parse_expr (ex : expr) (env : environment) =
     | _, Unresolved _ -> Unresolved e
     | UndefinedError err, _
     | _, UndefinedError err -> UndefinedError (e :: err)
-    | _, _ -> UndefinedError [e]
+    | _, _ -> ValueError [("Unsupported operands on plus", e)]
   )
   | Minus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
@@ -162,7 +162,7 @@ and parse_expr (ex : expr) (env : environment) =
   | FunctionCall (name, args) as ex -> (match lookup name env with
     | Some (Fn (params, body)) -> (
       if not (List.length args = List.length params) then
-        FunctionCallError("mismatch b/w arglen and paramlen", ex)
+        ValueError [("mismatch b/w arglen and paramlen", ex)]
       else
         let fn_env = 
           List.mapi 
@@ -179,7 +179,7 @@ and parse_expr (ex : expr) (env : environment) =
     )
     | Some (ExternFn (arity, fn)) -> (
       if not (List.length args = arity) then
-         FunctionCallError("mismatch b/w arglen and paramlen", ex)
+         ValueError [("mismatch b/w arglen and paramlen", ex)]
       else (
         let parsed_args = List.map (fun arg -> parse_expr arg env) args in
         let has_unresolved = List.exists 
@@ -324,7 +324,8 @@ and parse_expr (ex : expr) (env : environment) =
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
   | Real _ | True | False | Fn _ | ExternFn _ 
-  | UndefinedError _ | IndexOutOfBoundsError _ | FunctionCallError _ -> []
+  | UndefinedError _ | IndexOutOfBoundsError _
+  | ValueError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mul (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
   | Compare (e1, e2) | Gt (e1, e2) | Gte (e1, e2) | Lt (e1, e2)
