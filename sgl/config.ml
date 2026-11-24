@@ -13,5 +13,8 @@ let emit_builtins_in_env = false
 (** path to the folder of test files *)
 let env_test_dirname = "./test/env/"
 
+(** path to folder of test files that mainly test errors *)
+let error_test_dirname = "./test/error/"
+
 (** extension for SGL (Stuff Grapher Language) files that are expected for test files and input files *)
 let file_ext = ".sgl"

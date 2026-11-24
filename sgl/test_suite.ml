@@ -7,9 +7,18 @@ let is_unresolved = function
 
 let is_resolved e = not (is_unresolved e)
 
+type test_type =
+    | Env
+    | Error
+
+let dirname_of_test_type = function
+    | Env -> Config.env_test_dirname
+    | Error -> Config.error_test_dirname
+
 (** var [v : string] in an environemnt must satsify some specification [s : expr -> bool]. [if_err : string] is emitted if it is not satisfied, so   
 [env_to_satisfy : (v * if_err * s) list] *)
 type test = {
+    test_type: test_type;
     name: string;
     env_to_satisfy: (string * string * (expr -> bool)) list
 }
@@ -66,6 +75,7 @@ let expr_is_int e = match e with
 
 let tests = [
     {
+        test_type = Env;
         name = "add";
         env_to_satisfy = [
             ("x", "x != 1", real_eq_expr 1.);
@@ -74,6 +84,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "swap_order";
         env_to_satisfy = [
             ("w1", "w1 != 23.1177", real_eq_expr 23.1177);
@@ -85,6 +96,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "fun_call";
         env_to_satisfy = [
             ("j1", "j1 != Int 11", real_eq_expr 11.);
@@ -92,6 +104,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "bools_and_conds";
         env_to_satisfy = [
             ("z3", "z3 != False", fun e -> e = False);
@@ -110,6 +123,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "list_and_indexing";
         env_to_satisfy = [
             ("a", "a != [5, 6, 3]", 
@@ -122,12 +136,14 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "factorial";
         env_to_satisfy = [
             ("x", "x != Int 120", real_eq_expr 120.)
         ]
     };
     {
+        test_type = Env;
         name = "anon_funcs";
         env_to_satisfy = [
             ("x1", "x1 != Int 8", real_eq_expr 8.);
@@ -137,6 +153,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "partial_app";
         env_to_satisfy = [
             ("h1", "h1 != -9.4", fun e -> match e with
@@ -145,12 +162,14 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "neg_swap";
         env_to_satisfy = [
             ("h", "h != -5", real_eq_expr (-5.))
         ]
     };
     {
+        test_type = Env;
         name = "range";
         env_to_satisfy = [
             ("x", "x != [1...10]", ex_eq_reals (make_range 1 10));
@@ -160,6 +179,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "builtins";
         env_to_satisfy = [
             ("j1", "j1 != e", real_eq_expr Builtins.e_const);
@@ -175,6 +195,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "list_comp";
         env_to_satisfy = [
             ("z", "z != 10", real_eq_expr 10.);
@@ -187,6 +208,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "comp_and_eq";
         env_to_satisfy = [
             ("y", "y != 1", real_eq_expr 1.);
@@ -195,6 +217,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "list_comp_find_unres";
         env_to_satisfy = [
             ("_1", "code @ line 1 != [10]", fun e -> e = int_lst_to_expr_lst [10]);
@@ -202,12 +225,14 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "fun_param";
         env_to_satisfy = [
             ("r", "r != 5", real_eq_expr 5.)
         ]
     };
     {
+        test_type = Env;
         name = "let_in";
         env_to_satisfy = [
             ("x", "x != 6", real_eq_expr 6.);
@@ -219,6 +244,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "tuple2d";
         env_to_satisfy = [
             ("v1", "v1 != 1", real_eq_expr 1.);
@@ -230,6 +256,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "rand";
         env_to_satisfy = [
             ("rand_reg", "rand_reg not in [0, 5] or is not integer",
@@ -253,6 +280,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "sum";
         env_to_satisfy = [
             ("v1", "v1 != 55", real_eq_expr 55.);
@@ -261,6 +289,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "prod";
         env_to_satisfy = [
             ("v1", "v1 != 10!", real_eq_expr 3628800.);
@@ -268,6 +297,7 @@ let tests = [
         ]
     };
     {
+        test_type = Env;
         name = "extern_undef";
         env_to_satisfy = [
             ("g", "g not in [1, 10]", expr_in_range 1. 10.);
@@ -276,8 +306,9 @@ let tests = [
 ]
 
 let do_test (t : test) =
-    let (_, result_env) = parse_input (FileName (Config.env_test_dirname ^ t.name ^ Config.file_ext)) Config.emit_test_eval_output in
-    let test_filename = Config.env_test_dirname ^ t.name ^ Config.file_ext in
+    let dirname = dirname_of_test_type t.test_type in
+    let test_filename = dirname ^ t.name ^ Config.file_ext in
+    let (_, result_env) = parse_input (FileName test_filename) Config.emit_test_eval_output in
     List.iter
     (fun (x, if_err, cond_to_satsify) -> match lookup x result_env with
         | Some result_expr -> 
