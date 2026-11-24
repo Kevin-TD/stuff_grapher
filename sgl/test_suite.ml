@@ -15,6 +15,11 @@ let dirname_of_test_type = function
     | Env -> Config.env_test_dirname
     | Error -> Config.error_test_dirname
 
+let all_test_dirnames = [
+    Config.env_test_dirname;
+    Config.error_test_dirname;
+]
+
 (** var [v : string] in an environemnt must satsify some specification [s : expr -> bool]. [if_err : string] is emitted if it is not satisfied, so   
 [env_to_satisfy : (v * if_err * s) list] *)
 type test = {
@@ -320,13 +325,16 @@ let do_test (t : test) =
     t.env_to_satisfy
 
 let warn_if_not_tested (ts : test list) =
-    let test_filenames = Sys.readdir Config.env_test_dirname in
-    Array.iter 
-        (fun filename -> 
-            if not (List.exists (fun {name; _} -> filename = name ^ Config.file_ext) ts) then
-                print_endline ("WARNING: file " ^ Config.env_test_dirname ^ filename ^ " does not have a test")
-        )
-    test_filenames
+    List.iter (fun dirname ->
+        let test_filenames = Sys.readdir dirname in
+        Array.iter 
+            (fun filename -> 
+                if not (List.exists (fun {name; _} -> filename = name ^ Config.file_ext) ts) then
+                    print_endline ("WARNING: file " ^ dirname ^ filename ^ " does not have a test")
+            )
+        test_filenames
+    ) 
+    all_test_dirnames
     
 let run_tests () =
     List.iter do_test tests;
