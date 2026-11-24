@@ -17,8 +17,6 @@ type checking snt very strong but it allows me to easily implement that.  *)
 (* TODO: when building frontend, inverse trig functions should have sugar of sin^-1 and what not *)
 (* TODO: add factorial builtin *)
 (* TODO: improve errors for when externfn calls error  *)
-(* TODO: points *)
-(* TODO: sigma/sum, products *)
 (* TODO: integrals, derivatives *)
 (* TODO: make it so it is valid to put a num right next to a expr so 3x would immediately parse as 3*x *)
 (* TODO: values like sin(pi) turn into something close to 0 -- i want it to just be zero. not sure how to go about handling it *)
@@ -26,6 +24,10 @@ type checking snt very strong but it allows me to easily implement that.  *)
 (* TODO: frontend more user friendly error msgs *)
 (* TODO: frontend ability to drag around boxes *)
 (* TODO: and, or not?? not sure why i did not impl this sooner *)
+(* TODO: list length, abs. i want them both to use |x| and itll compute based off context
+but also add "length" and "abs" function *)
+(* TODO: list_comp_find_unres (and maybe other tests) give actual names *)
+(* TODO: code should exit with fail with a test fails *)
 
 let lookup (var_name : string) (env : environment) = 
   match List.find_opt (fun x -> x.name = var_name) env with

@@ -32,11 +32,11 @@
         "if",
         "then",
         "else",
-        "fun",
         "when",
         "for",
         "let",
-        "in"
+        "in",
+        "fun"
     ],
     "auto_operator_functions": [
         "sqrt",

@@ -66,7 +66,6 @@ function createBlock(index, focusIt = true) {
   mqField.resultEl = resultEl
   blocks[index] = mqField;
 
-  // capture phase: runs before MathQuill processes the key
   let emptyBeforeKey = false;
   mqSpan.addEventListener('keydown', () => {
     emptyBeforeKey = mqField.latex() === '';

@@ -56,6 +56,14 @@ let eq_reals (fl : float list) (e : expr) =
     | ExprList l -> fl = expr_lst_to_reals l
     | _ -> false
 
+let expr_in_range lower_bound upper_bound e = match e with
+    | Real r -> lower_bound <= r && r <= upper_bound
+    | _ -> false
+
+let expr_is_int e = match e with
+    | Real r -> r = floor r
+    | _ -> false
+
 let tests = [
     {
         name = "add";
@@ -219,6 +227,29 @@ let tests = [
             ("v4", "v4 != 0", real_eq_expr 0.);
             ("v5", "v5 != 1", real_eq_expr 1.);
             ("v6", "v6 != 32", real_eq_expr 32.);
+        ]
+    };
+    {
+        name = "rand";
+        env_to_satisfy = [
+            ("rand_reg", "rand_reg not in [0, 5] or is not integer",
+            fun e -> expr_in_range 0. 5. e && expr_is_int e);
+            ("rand_with_neg", "rand_with_neg not in [-1, 1] or is not integer", 
+            fun e -> expr_in_range (-1.) 1. e && expr_is_int e);
+            ("rand_closed", "rand_closed != 0", real_eq_expr 0.);
+            ("rand_wrong", "rand_wrong does not error", fun e -> match e with
+            | UndefinedError _ -> true
+            | _ -> false);
+            ("rand_reg2", "rand_reg2 not in [0, 1] or is not integer", fun e -> expr_in_range 0. 1. e && expr_is_int e);
+            ("rand_closed2", "rand_reg2 != 0", real_eq_expr 0.);
+            ("rand3", "rand3 not in [0, 1]", expr_in_range 0. 1.);
+            ("rand4", "rand4 not in [-1, 1]", expr_in_range (-1.) 1.);
+            ("rand5", "rand5 not in [1.5, 1.6]", expr_in_range 1.5 1.6);
+            ("rand6", "rand6 not in [1.66, 1.67]", expr_in_range 1.66 1.67);
+            ("rand7", "rand7 not in [1.8, 2]", expr_in_range 1.8 2.);
+            ("rand_wrong2", "rand_wrong2 does not error", fun e -> match e with
+            | UndefinedError _ -> true
+            | _ -> false)
         ]
     }
 ]
