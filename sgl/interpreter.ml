@@ -28,6 +28,7 @@ type checking snt very strong but it allows me to easily implement that.  *)
 but also add "length" and "abs" function *)
 (* TODO: list_comp_find_unres (and maybe other tests) give actual names *)
 (* TODO: code should exit with fail with a test fails *)
+(* TODO: handle parse errors *)
 
 let lookup (var_name : string) (env : environment) = 
   match List.find_opt (fun x -> x.name = var_name) env with
@@ -70,7 +71,7 @@ and parse_expr (ex : expr) (env : environment) =
     | _, Unresolved _ -> Unresolved e
     | UndefinedError err, _
     | _, UndefinedError err -> UndefinedError (e :: err)
-    | _, _ -> ValueError [("Unsupported operands on plus", e)]
+    | _, _ -> UndefinedError [e]
   )
   | Minus (e1, e2) as e -> (
     match parse_expr e1 env, parse_expr e2 env with
