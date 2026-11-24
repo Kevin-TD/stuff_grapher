@@ -251,6 +251,27 @@ let tests = [
             | UndefinedError _ -> true
             | _ -> false)
         ]
+    };
+    {
+        name = "sum";
+        env_to_satisfy = [
+            ("v1", "v1 != 55", real_eq_expr 55.);
+            ("v2", "v2 != 45", real_eq_expr 45.);
+            ("v3", "v3 != 375", real_eq_expr 375.)
+        ]
+    };
+    {
+        name = "prod";
+        env_to_satisfy = [
+            ("v1", "v1 != 10!", real_eq_expr 3628800.);
+            ("v2", "v2 != 5*6*7*8*9*10", real_eq_expr 151200.);
+        ]
+    };
+    {
+        name = "extern_undef";
+        env_to_satisfy = [
+            ("g", "g not in [1, 10]", expr_in_range 1. 10.);
+        ]
     }
 ]
 
