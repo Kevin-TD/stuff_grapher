@@ -6,13 +6,8 @@ let lastKey = null
 let lastTwoKeys = ""
 
 // note: "int" command called with capital I so "Int".
-// this is due to existing collision with "in" keyword
 
-// only the ones that i care about
-let greekConstants = "alpha beta gamma delta zeta theta kappa lambda xi pi rho sigma tau phi chi psi omega Gamma Delta Theta Lambda Xi Sigma Phi Psi Omega"
-let autoCommandNames = "sqrt sum prod int"
-
-let allAutoCommands = `${greekConstants} ${autoCommandNames}`
+let allAutoCommands = `${SGL.greekConstants()} ${SGL.autoCommandNames()}`
 
 let namesToEmbolden = SGL.namesToEmbolden()
 

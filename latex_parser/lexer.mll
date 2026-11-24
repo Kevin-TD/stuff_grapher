@@ -65,6 +65,6 @@ rule token = parse
     | "\\operatorname{fun}" { FUN }
     | ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9' '_']* as id { IDENT id }
     | '\\' (['A'-'Z' 'a'-'z']+ as id)
-    { if Hashtbl.mem greek id then GREEK id else FUNCTION id }
+    { if Hashtbl.mem greek id then IDENT id else FUNCTION id }
     | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c) }
     | '_' { SUBSCRIPT }

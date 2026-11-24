@@ -1,0 +1,46 @@
+{
+    "wildcard_var_symbol": "_",
+    "greek_symbols": [
+        "alpha",
+        "beta",
+        "gamma",
+        "delta",
+        "zeta",
+        "theta", 
+        "kappa",
+        "lambda",
+        "xi",
+        "pi",
+        "rho",
+        "sigma",
+        "tau",
+        "phi",
+        "chi",
+        "psi",
+        "omega",
+        "Gamma",
+        "Delta",
+        "Theta",
+        "Lambda",
+        "Xi",
+        "Sigma",
+        "Phi",
+        "Psi",
+        "Omega"
+    ],
+    "auto_operator_names": [
+        "if",
+        "then",
+        "else",
+        "fun",
+        "when",
+        "for",
+        "let",
+        "in"
+    ],
+    "exclude_names": [
+        "e",
+        "pi",
+        "sqrt"
+    ]
+}

@@ -36,17 +36,18 @@ let get_new_var_names s =
   let names = List.map (fun v -> v.name) filter_env in
   Js.array (Array.of_list (List.map Js.string names))
 
-
-let auto_operator_names = [
-  "if"; "then"; "else"; "fun"; "when"; "for"; "let"; "in"
-]
-
-let exclude_names = ["e"; "pi"; "sqrt"]
-
 (** list of names that do not get italicized and are emboldened--treated as functions *)
 let names_to_embolden = 
-  auto_operator_names @ Builtins.taken_names |>
-  List.filter (fun x -> not (List.exists (fun y -> y = x) exclude_names)) |>
+  Sgl_consts.auto_operator_names @ Builtins.taken_names |>
+  List.filter (fun x -> not (List.exists (fun y -> y = x) Sgl_consts.exclude_names)) |>
+  String.concat " "
+
+let greek_constants =
+  Sgl_consts.greek_symbols |>
+  String.concat " "
+
+let auto_command_names = 
+  Sgl_consts.auto_operator_names |>
   String.concat " "
 
 let () =
@@ -59,4 +60,10 @@ let () =
     
     method namesToEmbolden = 
       Js.string names_to_embolden
+
+    method greekConstants =
+      Js.string greek_constants
+    
+    method autoCommandNames =
+      Js.string auto_command_names
   end)

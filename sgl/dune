@@ -5,7 +5,8 @@
 (library
   (name sgl)
   (wrapped false)
-  (modules parser lexer ast builtins config interpreter passes sgl_consts test_suite))
+  (libraries yojson)
+  (modules parser lexer ast builtins config interpreter passes embedded_constants sgl_consts test_suite))
 
 (executable
   (name main)
@@ -19,3 +20,13 @@
   (libraries sgl js_of_ocaml)
   (preprocess (pps js_of_ocaml-ppx))
   (modes js))
+
+(rule
+ (targets embedded_constants.ml)
+ (deps constants.json)
+ (action
+  (with-stdout-to %{targets}
+   (progn
+    (echo "let json_str = {|")
+    (cat constants.json)
+    (echo "|}")))))
