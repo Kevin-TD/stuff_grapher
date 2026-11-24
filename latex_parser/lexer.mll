@@ -1,15 +1,13 @@
 {
     open Parser
+    open Yojson.Safe.Util
+
+    let consts = Yojson.Safe.from_string [%blob "../core/constants.json"]
 
     let greek : (string, unit) Hashtbl.t = Hashtbl.create 64
     let () =
       List.iter (fun g -> Hashtbl.replace greek g ())
-        [ "alpha"; "beta"; "gamma"; "delta"; "epsilon"; "varepsilon"; "zeta";
-          "eta"; "theta"; "vartheta"; "iota"; "kappa"; "lambda"; "mu"; "nu";
-          "xi"; "omicron"; "pi"; "varpi"; "rho"; "varrho"; "sigma"; "varsigma";
-          "tau"; "upsilon"; "phi"; "varphi"; "chi"; "psi"; "omega";
-          "Gamma"; "Delta"; "Theta"; "Lambda"; "Xi"; "Pi"; "Sigma";
-          "Upsilon"; "Phi"; "Psi"; "Omega" ]
+        (consts |> member "greek_symbols" |> to_list |> List.map to_string)
 }
 
 rule token = parse
@@ -69,5 +67,4 @@ rule token = parse
         else failwith ("unexpected subscript on \\" ^ g) }
     | '\\' (['A'-'Z' 'a'-'z']+ as g)
       { if Hashtbl.mem greek g then IDENT g else FUNCTION g }
-    | "_" ([^ '{'] as c) { SUBSCRIPT_ONE (String.make 1 c) }
     | '_' { SUBSCRIPT }

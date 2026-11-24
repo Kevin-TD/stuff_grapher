@@ -4,6 +4,9 @@
 (library
   (name latex_parser)
   (wrapped false)
+  (libraries yojson)
+  (preprocess (pps ppx_blob))
+  (preprocessor_deps (file ../core/constants.json))
   (modules parser lexer ast interpreter))
 
 (executable

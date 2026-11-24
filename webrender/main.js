@@ -66,14 +66,21 @@ function createBlock(index, focusIt = true) {
   mqField.resultEl = resultEl
   blocks[index] = mqField;
 
+  // capture phase: runs before MathQuill processes the key
+  let emptyBeforeKey = false;
+  mqSpan.addEventListener('keydown', () => {
+    emptyBeforeKey = mqField.latex() === '';
+  }, true);
+
   mqSpan.addEventListener('keydown', (e) => {
-    if (e.key === 'Backspace' && mqField.latex() === '' && blocks.length > 1) {
+    if (e.key === 'Backspace' && emptyBeforeKey && !e.repeat && blocks.length > 1) {
       e.preventDefault();
       const i = getIndex(blockEl);
       blockEl.remove();
       blocks.splice(i, 1);
       updateNumbers();
       focusBlock(Math.min(i, blocks.length - 1));
+      return;
     }
     if (e.key === 'ArrowUp') {
       const i = getIndex(blockEl);
@@ -163,8 +170,8 @@ function createBlock(index, focusIt = true) {
         }
       }
     } 
-    catch { 
-      
+    catch (err) { 
+      console.error(err)
     }
   })
 

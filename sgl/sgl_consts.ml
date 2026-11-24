@@ -2,7 +2,7 @@
 
 open Yojson.Safe.Util
 
-let consts = Yojson.Safe.from_string Embedded_constants.json_str
+let consts = Yojson.Safe.from_string [%blob "../core/constants.json"]
 
 (** symbol to indicate that the result of the expression can be "discarded" (not assigned to a name) *)
 let wildcard_var_symbol = consts |> member "wildcard_var_symbol" |> to_string
@@ -15,3 +15,6 @@ let auto_operator_names = consts |> member "auto_operator_names" |> to_list |> L
 
 (** list of names to exclude from being treated as a standard operator name *)
 let exclude_names = consts |> member "exclude_names" |> to_list |> List.map to_string
+
+(** list of special functions that the latex frontend should automatically treat as operators *)
+let auto_operator_functions = consts |> member "auto_operator_functions" |> to_list |> List.map to_string

@@ -47,7 +47,7 @@ let greek_constants =
   String.concat " "
 
 let auto_command_names = 
-  Sgl_consts.auto_operator_names |>
+  Sgl_consts.auto_operator_names @ Sgl_consts.auto_operator_functions |>
   String.concat " "
 
 let () =
@@ -66,4 +66,5 @@ let () =
     
     method autoCommandNames =
       Js.string auto_command_names
+    
   end)

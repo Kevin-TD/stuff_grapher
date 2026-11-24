@@ -36,8 +36,12 @@
         "when",
         "for",
         "let",
-        "in",
-        "sqrt"
+        "in"
+    ],
+    "auto_operator_functions": [
+        "sqrt",
+        "sum",
+        "prod"
     ],
     "exclude_names": [
         "e",

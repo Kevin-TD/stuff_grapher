@@ -20,7 +20,6 @@
 %token RIGHT_PAREN
 %token SUBSCRIPT
 %token SUPERSCRIPT
-%token <string> SUBSCRIPT_ONE
 %token <string> SUPERSCRIPT_ONE
 %token ACCESS_DOT
 %token RIGHT_ARROW
@@ -70,6 +69,8 @@ stmt:
   | s1 = stmt LTE s2 = stmt { Lte(s1, s2) }
   | s1 = stmt GTE s2 = stmt { Gte(s1, s2) }
   | s1 = stmt NE s2 = stmt { Ne(s1, s2) }
+  | OPERATOR_NAME LEFT_CURLY_BRACE s =  IDENT RIGHT_CURLY_BRACE
+  { Ident s }
   | OPERATOR_NAME LEFT_CURLY_BRACE s = IDENT RIGHT_CURLY_BRACE LEFT_PAREN xs = stmt_list RIGHT_PAREN
   { UserFunctionCall(s, xs) }
   | IF s1 = stmt THEN s2 = stmt ELSE s3 = stmt
