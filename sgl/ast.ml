@@ -31,7 +31,6 @@ type expr =
   used internally. 
   note: a user can reference an ExternFn by its name (e.g., "sqrt") but cannot create a value of that type. *)
   | UndefinedError of expr list
-  | IndexOutOfBoundsError of expr
   (* (error_msg, expr) *)
   | ValueError of (string * expr) list
   | True
@@ -86,8 +85,6 @@ let rec string_of_expr = function
     "IndexOf(" ^ string_of_expr e ^ ", " ^ string_of_expr idx ^ ")"
   | UndefinedError l ->
     "UndefinedError(" ^ string_of_expr (ExprList l) ^ ")"
-  | IndexOutOfBoundsError e ->
-    "IndexOutOfBoundsError(" ^ string_of_expr e ^ ")"
   | ValueError msg_errs -> (
     let msgs = List.map (fun (msg, ex) -> msg ^ ": " ^ string_of_expr ex) msg_errs in
     let msgs = "[" ^ String.concat ", " msgs ^ "]" in

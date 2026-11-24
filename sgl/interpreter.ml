@@ -55,7 +55,7 @@ and parse_expr (ex : expr) (env : environment) =
   match ex with
   | Real _ as n -> n
   | True | False as b -> b
-  | UndefinedError _ | IndexOutOfBoundsError _ 
+  | UndefinedError _ 
   | ValueError _ as err -> err
   | Unresolved _ as unres -> unres
   | Fn _ | ExternFn _ as f -> f
@@ -216,7 +216,7 @@ and parse_expr (ex : expr) (env : environment) =
       try (
         match List.nth_opt l (int_of_float i - 1) with
         | Some e -> e
-        | None -> IndexOutOfBoundsError t
+        | None -> ValueError [("index out-of-bounds", t)]
       ) 
       with Invalid_argument _ -> UndefinedError [t]
     )
@@ -324,7 +324,7 @@ and parse_expr (ex : expr) (env : environment) =
 let rec find_unresolved (e : expr) (env : environment) = match e with
   | Unresolved u -> find_unresolved u env
   | Real _ | True | False | Fn _ | ExternFn _ 
-  | UndefinedError _ | IndexOutOfBoundsError _
+  | UndefinedError _
   | ValueError _ -> []
   | Ident x -> if (lookup x env = None) then [x] else []
   | Plus (e1, e2) | Minus (e1, e2) | Mul (e1, e2) | Div (e1, e2) | Exp (e1, e2) 
